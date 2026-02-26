@@ -1,57 +1,57 @@
-# Building APK for Accessibility Navigation App
+# Сборка APK для приложения навигации доступности
 
-This guide provides step-by-step instructions to build and release the Android APK for the accessibility navigation platform.
+Это руководство содержит пошаговые инструкции по сборке и выпуску Android APK для платформы навигации доступности.
 
-## Prerequisites
+## Предварительные требования
 
-- Android SDK (API Level 26+)
-- Android Studio (latest version)
+- Android SDK (API уровня 26+)
+- Android Studio (последняя версия)
 - Java Development Kit (JDK 11+)
 - Gradle 8.0+
 
-## Project Structure
+## Структура проекта
 
 ```
 app/
 ├── src/main/
 │   ├── java/app/what/investtravel/
-│   │   ├── data/          # Data layer (API services, models)
-│   │   ├── domain/        # Domain layer (controllers, state management)
-│   │   ├── features/      # Feature modules
-│   │   │   ├── main/      # Main/Maps feature
-│   │   │   ├── places/    # Places browser
-│   │   │   ├── reviews/   # Reviews system
-│   │   │   └── routes/    # Route planning
+│   │   ├── data/          # Слой данных (сервисы API, модели)
+│   │   ├── domain/        # Слой домена (контроллеры, управление состоянием)
+│   │   ├── features/      # Модули функций
+│   │   │   ├── main/      # Основная функция/карты
+│   │   │   ├── places/    # Браузер мест
+│   │   │   ├── reviews/   # Система отзывов
+│   │   │   └── routes/    # Планирование маршрутов
 │   │   └── MainActivity.kt
 │   └── AndroidManifest.xml
-├── keystore/             # Signing configuration
-└── build.gradle.kts      # Build configuration
+├── keystore/             # Конфигурация подписи
+└── build.gradle.kts      # Конфигурация сборки
 
 core/
-├── foundation/           # Core utilities and DI
-└── navigation/           # Navigation components
+├── foundation/           # Основные утилиты и DI
+└── navigation/           # Компоненты навигации
 
 backend/
-├── main.py              # FastAPI backend
-└── requirements.txt     # Backend dependencies
+├── main.py              # Бэкенд FastAPI
+└── requirements.txt     # Зависимости бэкенда
 ```
 
-## API Configuration
+## Конфигурация API
 
-The app uses the following API endpoint for the backend services:
+Приложение использует следующую точку API для сервисов бэкенда:
 
 ```
 Base URL: http://45.155.207.232:1478
 Maps API Key: 576b91a0-ac5c-421a-a932-38cbe1d4c633
 ```
 
-Update the backend URL in `app/src/main/java/app/what/investtravel/data/remote/ApiClient.kt` if deploying to a different server.
+Обновите URL бэкенда в `app/src/main/java/app/what/investtravel/data/remote/ApiClient.kt` если развертываете на другом сервере.
 
-## Signing Configuration
+## Конфигурация подписи
 
-### Option 1: Using Keystore Properties File (Recommended)
+### Вариант 1: Использование файла свойств хранилища (Рекомендуется)
 
-1. Create `app/keystore/keystore_config.properties`:
+1. Создайте `app/keystore/keystore_config.properties`:
 
 ```properties
 storeFile=./what_apps_keystore.keystore
@@ -60,16 +60,16 @@ keyAlias=your_key_alias
 keyPassword=your_key_password
 ```
 
-2. Place your keystore file at `app/keystore/what_apps_keystore.keystore`
+2. Поместите файл хранилища в `app/keystore/what_apps_keystore.keystore`
 
-3. Build release APK:
+3. Соберите релизный APK:
 ```bash
 ./gradlew assembleRelease
 ```
 
-### Option 2: Using Environment Variables
+### Вариант 2: Использование переменных окружения
 
-Set environment variables before building:
+Установите переменные окружения перед сборкой:
 
 ```bash
 export KEYSTORE_PASSWORD="your_keystore_password"
@@ -79,9 +79,9 @@ export RELEASE_SIGN_KEY_PASSWORD="your_key_password"
 ./gradlew assembleRelease
 ```
 
-### Option 3: Creating a New Keystore
+### Вариант 3: Создание новго хранилища
 
-If you don't have a keystore, create one:
+Если у вас нет хранилища, создайте его:
 
 ```bash
 keytool -genkey -v -keystore app/keystore/what_apps_keystore.keystore \
@@ -90,120 +90,120 @@ keytool -genkey -v -keystore app/keystore/what_apps_keystore.keystore \
   -keypass key_password
 ```
 
-Then use Option 1 with the passwords you provided.
+Затем используйте Вариант 1 с паролями, которые вы указали.
 
-## Building Debug APK
+## Сборка отладочного APK
 
 ```bash
-# Build debug APK
+# Соберите отладочный APK
 ./gradlew assembleDebug
 
-# Output: app/build/outputs/apk/debug/app-debug.apk
+# Выход: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-## Building Release APK (Signed)
+## Сборка релизного APK (Подписанный)
 
-### Step 1: Ensure Signing Configuration
+### Шаг 1: Убедитесь в конфигурации подписи
 
-Create `app/keystore/keystore_config.properties` or set environment variables (see Signing Configuration section above).
+Создайте `app/keystore/keystore_config.properties` или установите переменные окружения (см. раздел Конфигурация подписи выше).
 
-### Step 2: Build Release APK
+### Шаг 2: Соберите релизный APK
 
 ```bash
-# Clean and build
+# Очистка и сборка
 ./gradlew clean assembleRelease
 
-# Or just build
+# Или просто соберите
 ./gradlew assembleRelease
 
-# Output: app/build/outputs/apk/release/app-release.apk
+# Выход: app/build/outputs/apk/release/app-release.apk
 ```
 
-### Step 3: Verify APK Signature
+### Шаг 3: Проверьте подпись APK
 
 ```bash
 jarsigner -verify -verbose app/build/outputs/apk/release/app-release.apk
 ```
 
-## Building Bundle (AAB) for Play Store
+## Сборка Bundle (AAB) для Play Store
 
-Android App Bundle is required for uploading to Google Play Store:
+Android App Bundle требуется для загрузки в Google Play Store:
 
 ```bash
 ./gradlew bundleRelease
 
-# Output: app/build/outputs/bundle/release/app-release.aab
+# Выход: app/build/outputs/bundle/release/app-release.aab
 ```
 
-## ProGuard Configuration
+## Конфигурация ProGuard
 
-ProGuard is enabled for release builds to:
-- Minimize APK size by removing unused code
-- Obfuscate code for security
-- Optimize performance
+ProGuard включен для релизной сборки для:
+- Минимизации размера APK путем удаления неиспользуемого кода
+- Обфускации кода для безопасности
+- Оптимизации производительности
 
-Configuration files:
-- `proguard-rules.pro` - Custom ProGuard rules
-- `getDefaultProguardFile("proguard-android-optimize.txt")` - Android default rules
+Файлы конфигурации:
+- `proguard-rules.pro` - Пользовательские правила ProGuard
+- `getDefaultProguardFile("proguard-android-optimize.txt")` - Стандартные правила Android
 
-### Important: Keep Serialization Classes
+### Важно: Сохранение классов сериализации
 
-The following classes should NOT be obfuscated (already configured in proguard-rules.pro):
+Следующие классы НЕ должны быть обфусцированы (уже настроено в proguard-rules.pro):
 
 ```
 -keep class app.what.investtravel.data.remote.** { *; }
 -keep class kotlinx.serialization.** { *; }
 ```
 
-## APK Installation
+## Установка APK
 
-### Install Debug APK
+### Установка отладочного APK
 
 ```bash
 ./gradlew installDebug
 ```
 
-### Install Release APK
+### Установка релизного APK
 
 ```bash
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-### Install from Android Studio
+### Установка из Android Studio
 
-1. Connect Android device via USB (or use emulator)
-2. Click "Run" or "Debug" in Android Studio
-3. Select target device
+1. Подключите устройство Android через USB (или используйте эмулятор)
+2. Нажмите "Run" или "Debug" в Android Studio
+3. Выберите целевое устройство
 
-## Performance Optimization
+## Оптимизация производительности
 
-The release build includes:
-- **Code Minification**: ProGuard removes unused code
-- **Resource Shrinking**: Unused resources are removed
-- **Code Optimization**: ProGuard optimizes bytecode
+Релизная сборка включает:
+- **Минимизация кода**: ProGuard удаляет неиспользуемый код
+- **Сжатие ресурсов**: неиспользуемые ресурсы удаляются
+- **Оптимизация кода**: ProGuard оптимизирует байт-код
 
-To verify optimization:
+Для проверки оптимизации:
 
 ```bash
-# Check APK size
+# Проверьте размер APK
 du -h app/build/outputs/apk/release/app-release.apk
 
-# Extract and inspect
+# Извлеките и проверьте
 unzip -l app/build/outputs/apk/release/app-release.apk | wc -l
 ```
 
-## Backend Deployment
+## Развертывание бэкенда
 
-Before releasing, ensure the backend API is deployed:
+Перед выпуском убедитесь, что API бэкенда развернут:
 
 ```bash
-# Install backend dependencies
+# Установите зависимости бэкенда
 pip install -r backend/requirements.txt
 
-# Run backend locally
+# Запустите бэкенд локально
 python backend/main.py
 
-# For production, deploy to a cloud service:
+# Для продакшена разверните на облачный сервис:
 # - AWS EC2
 # - Google Cloud Run
 # - Azure App Service
@@ -211,73 +211,73 @@ python backend/main.py
 # - Heroku
 ```
 
-Update `ApiClient.kt` with the production backend URL.
+Обновите `ApiClient.kt` с URL бэкенда продакшена.
 
-## Publishing to Google Play Store
+## Публикация в Google Play Store
 
-1. Create Google Play Developer Account
-2. Create new app in Google Play Console
-3. Fill app details, screenshots, description
-4. Upload signed APK/AAB (`app-release.aab`)
-5. Configure pricing and distribution
-6. Submit for review
+1. Создайте аккаунт Google Play Developer
+2. Создайте новое приложение в Google Play Console
+3. Заполните детали приложения, скриншоты, описание
+4. Загрузите подписанный APK/AAB (`app-release.aab`)
+5. Настройте цену и распределение
+6. Отправьте на рассмотрение
 
-## Troubleshooting
+## Решение проблем
 
-### Build Fails with "Missing Keystore"
+### Ошибка сборки с "Missing Keystore"
 
-Solution: Create keystore file or set environment variables (see Signing Configuration).
+Решение: создайте файл хранилища или установите переменные окружения (см. Конфигурация подписи).
 
-### APK Not Installable
+### APK не устанавливается
 
-- Check that `minSdk` matches device OS level
-- Verify APK is signed correctly: `jarsigner -verify app-release.apk`
+- Проверьте, что `minSdk` соответствует уровню ОС устройства
+- Убедитесь, что APK правильно подписан: `jarsigner -verify app-release.apk`
 
-### Large APK Size
+### Большой размер APK
 
-- Check for large assets in `src/main/assets/`
-- Verify ProGuard is enabled for release build
-- Use bundle (AAB) instead of APK
+- Проверьте наличие больших активов в `src/main/assets/`
+- Убедитесь, что ProGuard включен для релизной сборки
+- Используйте bundle (AAB) вместо APK
 
-### API Connection Issues
+### Проблемы подключения к API
 
-- Verify backend server is running
-- Check network connectivity
-- Update `BASE_URL` in `ApiClient.kt`
-- Check firewall rules if on corporate network
+- Проверьте, что сервер бэкенда работает
+- Проверьте подключение к сети
+- Обновите `BASE_URL` в `ApiClient.kt`
+- Проверьте правила брандмауэра если находитесь в корпоративной сети
 
-## Release Checklist
+## Контрольный список релиза
 
-- [ ] Update version code/name in `build.gradle.kts`
-- [ ] Update `versionCode` and `versionName`
-- [ ] Configure signing (keystore password, etc.)
-- [ ] Test on physical device (multiple API levels if possible)
-- [ ] Verify API connectivity
-- [ ] Build release APK/AAB
-- [ ] Check APK signature
-- [ ] Test installation from APK file
-- [ ] Create release notes
-- [ ] Upload to Play Store
+- [ ] Обновите номер версии/имя в `build.gradle.kts`
+- [ ] Обновите `versionCode` и `versionName`
+- [ ] Настройте подпись (пароль хранилища и т.д.)
+- [ ] Тестирование на физическом устройстве (несколько уровней API если возможно)
+- [ ] Проверка подключения к API
+- [ ] Сборка релизного APK/AAB
+- [ ] Проверка подписи APK
+- [ ] Тестирование установки из файла APK
+- [ ] Создание заметок о выпуске
+- [ ] Загрузка в Play Store
 
-## Version Management
+## Управление версией
 
-Update in `app/build.gradle.kts`:
+Обновите в `app/build.gradle.kts`:
 
 ```kotlin
-versionCode = 2        // Increment for each release
-versionName = "1.1"    // Semantic versioning
+versionCode = 2        // Увеличивайте для каждого выпуска
+versionName = "1.1"    // Семантическое версионирование
 ```
 
-## Support
+## Поддержка
 
-For issues during building:
-1. Check Gradle sync (File → Sync Now)
-2. Clean project: `./gradlew clean`
-3. Invalidate Caches: File → Invalidate Caches
-4. Check SDK versions match `build.gradle.kts`
+При возникновении проблем во время сборки:
+1. Проверьте синхронизацию Gradle (File → Sync Now)
+2. Очистите проект: `./gradlew clean`
+3. Инвалидировать кэши: File → Invalidate Caches
+4. Проверьте, что версии SDK соответствуют `build.gradle.kts`
 
-## Additional Resources
+## Дополнительные ресурсы
 
-- [Android Build System Documentation](https://developer.android.com/studio/build)
-- [Signing Your Application](https://developer.android.com/studio/publish/app-signing)
-- [Prepare for Release](https://developer.android.com/studio/publish/preparing)
+- [Документация системы сборки Android](https://developer.android.com/studio/build)
+- [Подпись вашего приложения](https://developer.android.com/studio/publish/app-signing)
+- [Подготовка к выпуску](https://developer.android.com/studio/publish/preparing)

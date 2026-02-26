@@ -1,96 +1,96 @@
-# Accessibility Navigation Platform - Android Application
+# Платформа навигации для инвалидов - мобильное приложение Android
 
-A comprehensive Android application built with Kotlin and Jetpack Compose for helping people with disabilities discover and navigate to accessible locations in Rostov-on-Don and beyond.
+Полнофункциональное приложение для Android, разработанное на Kotlin и Jetpack Compose, предназначенное для помощи людям с ограниченными возможностями в поиске и навигации к доступным местам в Ростове-на-Дону и за его пределами.
 
-## Overview
+## Обзор
 
-This application serves as an information and navigation platform specifically designed for people with disabilities. It provides:
+Это приложение служит информационной и навигационной платформой, специально разработанной для людей с ограниченными возможностями. Оно предоставляет:
 
-- **Accessible Places Discovery**: Find cafes, cinemas, restaurants, parks, and other venues with detailed accessibility information
-- **Accessibility Feedback**: Read and write reviews with specific accessibility feedback from real users
-- **Route Planning**: Plan journeys through accessible waypoints with wheelchair-friendly routes
-- **Location Services**: Integration with maps API to visualize accessible places and routes
+- **Поиск доступных мест**: найти кафе, кинотеатры, рестораны, парки и другие объекты с подробной информацией об их доступности
+- **Обратная связь по доступности**: читать и писать отзывы с конкретной информацией о доступности от реальных пользователей
+- **Планирование маршрутов**: планирование поездок через доступные промежуточные пункты с маршрутами, удобными для инвалидных колясок
+- **Сервисы определения местоположения**: интеграция с API карт для визуализации доступных мест и маршрутов
 
-## Technology Stack
+## Стек технологий
 
-- **Language**: Kotlin
-- **UI Framework**: Jetpack Compose (Material 3)
-- **Architecture**: MVVM with clean separation of concerns
-- **Dependency Injection**: Koin
-- **Networking**: Ktor Client with Kotlinx Serialization
-- **Database**: Room (for local caching)
-- **Backend**: FastAPI (Python)
-- **Maps**: Yandex Maps / Google Maps API integration
+- **Язык**: Kotlin
+- **UI фреймворк**: Jetpack Compose (Material 3)
+- **Архитектура**: MVVM с чистым разделением ответственности
+- **Внедрение зависимостей**: Koin
+- **Сетевая коммуникация**: Ktor Client с Kotlinx Serialization
+- **База данных**: Room (для локального кеширования)
+- **Бэкенд**: FastAPI (Python)
+- **Карты**: интеграция Yandex Maps / Google Maps API
 
-## Project Structure
+## Структура проекта
 
 ```
 app/
 ├── src/main/
 │   ├── java/app/what/investtravel/
 │   │   ├── data/
-│   │   │   ├── local/          # Local database (Room)
-│   │   │   └── remote/         # API services and models
-│   │   ├── domain/             # Business logic and controllers
+│   │   │   ├── local/          # Локальная база данных (Room)
+│   │   │   └── remote/         # API сервисы и модели
+│   │   ├── domain/             # Бизнес-логика и контроллеры
 │   │   ├── features/
-│   │   │   ├── auth/           # Authentication
-│   │   │   ├── main/           # Maps and home screen
-│   │   │   ├── places/         # Places browser and details
-│   │   │   ├── reviews/        # Reviews and feedback
-│   │   │   ├── routes/         # Route planning
-│   │   │   └── settings/       # User settings
+│   │   │   ├── auth/           # Аутентификация
+│   │   │   ├── main/           # Карты и главный экран
+│   │   │   ├── places/         # Браузер и детали мест
+│   │   │   ├── reviews/        # Отзывы и обратная связь
+│   │   │   ├── routes/         # Планирование маршрутов
+│   │   │   └── settings/       # Настройки пользователя
 │   │   └── MainActivity.kt
-│   └── res/                    # Android resources
+│   └── res/                    # Ресурсы Android
 │
-├── keystore/                   # Release signing configuration
-└── build.gradle.kts            # Build configuration
+├── keystore/                   # Конфигурация подписи при релизе
+└── build.gradle.kts            # Конфигурация сборки
 
 core/
-├── foundation/                 # Core utilities, DI setup
-└── navigation/                 # Navigation components
+├── foundation/                 # Основные утилиты, настройка DI
+└── navigation/                 # Компоненты навигации
 
 backend/
-├── main.py                    # FastAPI server
-├── requirements.txt            # Python dependencies
-└── README.md                   # Backend setup instructions
+├── main.py                    # Сервер FastAPI
+├── requirements.txt            # Python зависимости
+└── README.md                   # Инструкции настройки бэкенда
 ```
 
-## Features
+## Функции
 
-### 1. Maps with Accessible Place Markers
-- Display accessible places on interactive map
-- Show accessibility indicators and ratings
-- Tap markers for quick place information
-- Real-time location tracking
+### 1. Карты с маркерами доступных мест
+- Отображение доступных мест на интерактивной карте
+- Показ индикаторов доступности и рейтингов
+- Нажатие на маркеры для быстрого получения информации о месте
+- Отслеживание местоположения в реальном времени
 
-### 2. Places Discovery
-- Browse all accessible places by category
-- Filter by accessibility features (wheelchair access, elevators, accessible restrooms, etc.)
-- Search by location and radius
-- View detailed place information with contact details
-- Save favorite places
+### 2. Поиск мест
+- Просмотр всех доступных мест по категориям
+- Фильтрация по функциям доступности (доступ для инвалидных колясок, лифты, доступные туалеты и т.д.)
+- Поиск по местоположению и радиусу
+- Просмотр подробной информации о месте с контактными данными
+- Сохранение избранных мест
 
-### 3. Accessibility Feedback System
-- Write detailed reviews with accessibility feedback
-- Rate difficulty level (easy, moderate, hard)
-- Record specific accessibility issues encountered
-- Provide recommendations for improvements
-- Read reviews from other users with disabilities
-- View staff helpfulness ratings
+### 3. Система обратной связи по доступности
+- Написание подробных отзывов с информацией об доступности
+- Оценка уровня сложности (простой, средний, сложный)
+- Запись конкретных проблем доступности
+- Предоставление рекомендаций по улучшению
+- Чтение отзывов от других пользователей с ограниченными возможностями
+- Просмотр оценок отзывчивости персонала
 
-### 4. Route Planning
-- Plan journeys with multiple waypoints
-- Set difficulty level and accessibility requirements
-- Filter by accessibility tags (no-stairs, elevator-access, parking, etc.)
-- Create wheelchair-friendly routes
-- Save and share routes
-- Estimated travel time and distance
+### 4. Планирование маршрутов
+- Планирование поездок с несколькими промежуточными пунктами
+- Установка уровня сложности и требований доступности
+- Фильтрация по тегам доступности (без лестниц, доступ лифтом, парковка и т.д.)
+- Создание маршрутов, удобных для инвалидных колясок
+- Сохранение и совместное использование маршрутов
+- Предполагаемое время в пути и расстояние
 
-### 5. User Management
-- User authentication and profiles
-- Saved places and favorite routes
-- Review history and contributions
-- Accessibility preferences
+### 5. Управление пользователями
+- Аутентификация пользователей и профили
+- Сохраненные места и избранные маршруты
+- История отзывов и вклад
+- Предпочтения доступности
 
 ## Data Models
 
@@ -155,214 +155,214 @@ backend/
 - restPoints: List<AccessiblePlace>
 ```
 
-## API Endpoints
+## Точки подключения API
 
-### Places
+### Места
 ```
-GET    /places/search                  # Search with filters and location
-GET    /places/{id}                    # Get place details
-POST   /places/create                  # Create new place
-POST   /places/filter                  # Filter by accessibility criteria
-POST   /places/save                    # Save to favorites
-GET    /places/saved                   # Get saved places
-```
-
-### Reviews
-```
-POST   /reviews/create                 # Create review with accessibility feedback
-GET    /reviews/place/{placeId}        # Get reviews for a place
-GET    /reviews/my                     # Get user's reviews
+GET    /places/search                  # Поиск с фильтрами и местоположением
+GET    /places/{id}                    # Получить детали места
+POST   /places/create                  # Создать новое место
+POST   /places/filter                  # Фильтровать по критериям доступности
+POST   /places/save                    # Сохранить в избранное
+GET    /places/saved                   # Получить сохраненные места
 ```
 
-### Routes
+### Отзывы
 ```
-POST   /routes/create                  # Create accessible route
-GET    /routes/accessible              # List routes with filters
-GET    /routes/{id}                    # Get route details
-POST   /routes/{id}/add-place          # Add place to route
-POST   /routes/filter                  # Filter routes by accessibility
+POST   /reviews/create                 # Создать отзыв с обратной связью по доступности
+GET    /reviews/place/{placeId}        # Получить отзывы для места
+GET    /reviews/my                     # Получить отзывы пользователя
 ```
 
-### Authentication
+### Маршруты
 ```
-POST   /auth/login/                    # User login
+POST   /routes/create                  # Создать доступный маршрут
+GET    /routes/accessible              # Список маршрутов с фильтрами
+GET    /routes/{id}                    # Получить детали маршрута
+POST   /routes/{id}/add-place          # Добавить место в маршрут
+POST   /routes/filter                  # Фильтровать маршруты по доступности
 ```
 
-## Setup Instructions
+### Аутентификация
+```
+POST   /auth/login/                    # Вход пользователя
+```
 
-### Prerequisites
-- Android SDK Level 26+
-- Android Studio (latest)
+## Инструкции по настройке
+
+### Предварительные требования
+- Android SDK уровня 26+
+- Android Studio (последняя версия)
 - Java 11+
-- Python 3.8+ (for backend)
+- Python 3.8+ (для бэкенда)
 
-### Android App Setup
+### Настройка приложения Android
 
-1. **Clone the repository**
+1. **Клонируйте репозиторий**
    ```bash
    git clone <repository-url>
    cd incalid_tracker
    git checkout navigation-app-for-disabled
    ```
 
-2. **Configure Backend URL**
-   - Edit `app/src/main/java/app/what/investtravel/data/remote/ApiClient.kt`
-   - Update `BASE_URL` to your backend server
+2. **Настройте URL бэкенда**
+   - Отредактируйте `app/src/main/java/app/what/investtravel/data/remote/ApiClient.kt`
+   - Обновите `BASE_URL` на ваш сервер бэкенда
 
-3. **Build and Run**
+3. **Сборка и запуск**
    ```bash
    ./gradlew assembleDebug
-   # Or use Android Studio: Run → Run 'app'
+   # Или используйте Android Studio: Run → Run 'app'
    ```
 
-### Backend Setup
+### Настройка бэкенда
 
-1. **Install dependencies**
+1. **Установите зависимости**
    ```bash
    cd backend
    pip install -r requirements.txt
    ```
 
-2. **Run the server**
+2. **Запустите сервер**
    ```bash
    python main.py
    ```
-   The API will be available at `http://localhost:8000`
+   API будет доступен по адресу `http://localhost:8000`
 
-3. **View API documentation**
-   Open `http://localhost:8000/docs` in browser
+3. **Просмотрите документацию API**
+   Откройте `http://localhost:8000/docs` в браузере
 
-## Building for Release
+## Сборка для выпуска
 
-See [APK_BUILD_GUIDE.md](APK_BUILD_GUIDE.md) for detailed instructions on:
-- Creating signing keystore
-- Building release APK
-- Configuring ProGuard
-- Publishing to Google Play Store
+Смотрите [APK_BUILD_GUIDE.md](APK_BUILD_GUIDE.md) для подробных инструкций по:
+- Созданию хранилища подписей
+- Сборке релизного APK
+- Конфигурации ProGuard
+- Публикации в Google Play Store
 
-Quick build:
+Быстрая сборка:
 ```bash
 ./gradlew assembleRelease
-# Output: app/build/outputs/apk/release/app-release.apk
+# Выход: app/build/outputs/apk/release/app-release.apk
 ```
 
-## Configuration
+## Конфигурация
 
-### Maps API Key
-The application uses the following maps API key:
+### Ключ API карт
+Приложение использует следующий ключ API карт:
 ```
 576b91a0-ac5c-421a-a932-38cbe1d4c633
 ```
 
-Update in `ApiClient.kt` if needed.
+Обновите в `ApiClient.kt` при необходимости.
 
-### Backend API
+### API бэкенда
 ```
 Base URL: http://45.155.207.232:1478
 ```
 
-Update in `ApiClient.kt` for production deployment.
+Обновите в `ApiClient.kt` для развертывания в продакшене.
 
-## AI Features
+## Функции ИИ
 
-The application includes mock AI implementations for:
-- **Accessibility Analysis**: Analyze review text for accessibility insights
-- **Route Generation**: Generate optimal accessible routes based on preferences
-- **Recommendations**: Suggest accessibility improvements for places
+Приложение включает макетные реализации ИИ для:
+- **Анализ доступности**: анализ текста отзывов для выявления проблем доступности
+- **Генерация маршрутов**: создание оптимальных доступных маршрутов на основе предпочтений
+- **Рекомендации**: предложение улучшений доступности для мест
 
-These are placeholder implementations. Connect to actual AI services (OpenAI, Claude, etc.) as needed.
+Это заглушки. При необходимости подключите реальные сервисы ИИ (OpenAI, Claude и т.д.).
 
-## Accessibility Considerations
+## Соображения о доступности
 
-This app itself is designed with accessibility in mind:
-- Large, easy-to-read text
-- High contrast colors
-- Proper spacing and layouts
-- Support for screen readers (TalkBack)
-- Keyboard navigation support
-- Clear iconography
+Это приложение само разработано с учетом доступности:
+- Крупный, легко читаемый текст
+- Высокая контрастность цветов
+- Правильный интервал и макеты
+- Поддержка программ чтения с экрана (TalkBack)
+- Поддержка навигации с клавиатуры
+- Четкая иконография
 
-## Performance
+## Производительность
 
-The release build includes:
-- **Code Minification**: ProGuard removes unused code
-- **Resource Shrinking**: Unused resources removed
-- **Optimization**: Bytecode optimization for faster execution
-- **Local Caching**: Room database caches frequently accessed data
+Релизный сборка включает:
+- **Минимизация кода**: ProGuard удаляет неиспользуемый код
+- **Сжатие ресурсов**: удаление неиспользуемых ресурсов
+- **Оптимизация**: оптимизация байт-кода для более быстрого выполнения
+- **Локальное кеширование**: база данных Room кеширует часто используемые данные
 
-## Architecture
+## Архитектура
 
-### MVVM Pattern
-- **Model**: Data models and repository layer
-- **View**: Jetpack Compose UI components
-- **ViewModel**: State management and business logic via controllers
+### Паттерн MVVM
+- **Model**: модели данных и слой репозитория
+- **View**: компоненты UI Jetpack Compose
+- **ViewModel**: управление состоянием и бизнес-логика через контроллеры
 
-### Clean Architecture
-- **Data Layer**: API services, database, models
-- **Domain Layer**: Controllers, state, events, actions
-- **Presentation Layer**: Composable UI components
+### Чистая архитектура
+- **Слой данных**: сервисы API, база данных, модели
+- **Слой домена**: контроллеры, состояние, события, действия
+- **Слой представления**: компоненты Composable UI
 
-### Dependency Injection
-- **Koin**: Framework for DI setup
-- **Modules**: Separated by feature for modularity
+### Внедрение зависимостей
+- **Koin**: фреймворк для настройки DI
+- **Модули**: разделены по функциям для модульности
 
-## Testing
+## Тестирование
 
-Run unit tests:
+Запустите модульные тесты:
 ```bash
 ./gradlew test
 ```
 
-Run instrumentation tests:
+Запустите инструментальные тесты:
 ```bash
 ./gradlew connectedAndroidTest
 ```
 
-## Contributing
+## Внесение вклада
 
-1. Clone the repository
-2. Create a feature branch
-3. Make changes
-4. Push and create a pull request
+1. Клонируйте репозиторий
+2. Создайте ветку функции
+3. Внесите изменения
+4. Нажмите и создайте запрос на слияние
 
-## License
+## Лицензия
 
-MIT License - See LICENSE file for details
+MIT лицензия - см. файл LICENSE для подробностей
 
-## Support
+## Поддержка
 
-For issues, feature requests, or questions:
-1. Check existing documentation
-2. Review backend logs
-3. Verify API connectivity
-4. Check Logcat output in Android Studio
+По вопросам, запросам функций или вопросам:
+1. Проверьте существующую документацию
+2. Просмотрите журналы бэкенда
+3. Проверьте подключение к API
+4. Проверьте выход Logcat в Android Studio
 
-## Future Enhancements
+## Будущие улучшения
 
-- [ ] Real-time crowd-sourced accessibility updates
-- [ ] Integration with real accessibility databases
-- [ ] Advanced route optimization algorithms
-- [ ] Video walkthrough of accessible routes
-- [ ] Multi-language support
-- [ ] Offline map caching
-- [ ] Social features (share routes, follow users)
-- [ ] Integration with public transport accessibility info
-- [ ] Audio/visual navigation assistance
-- [ ] Integration with accessibility certification authorities
+- [ ] Обновления доступности в реальном времени от пользователей
+- [ ] Интеграция с реальными базами данных доступности
+- [ ] Передовые алгоритмы оптимизации маршрутов
+- [ ] Видеопрохождение доступных маршрутов
+- [ ] Поддержка нескольких языков
+- [ ] Кеширование оффлайн карт
+- [ ] Социальные функции (совместное использование маршрутов, подписка на пользователей)
+- [ ] Интеграция с информацией о доступности общественного транспорта
+- [ ] Аудио/визуальная навигационная помощь
+- [ ] Интеграция с органами сертификации доступности
 
-## Team
+## Команда
 
-Created for the Rostov State University of Economics (RINX) accessibility platform initiative.
+Создано для инициативы платформы доступности Ростовского государственного экономического университета (РИНХ).
 
-Contact: @LeksGray (Aleksey Olegovich Serov)
+Контакт: @LeksGray (Алексей Олегович Серов)
 
-## Changelog
+## Журнал изменений
 
-### Version 1.0 (Initial Release)
-- Maps feature with accessible place markers
-- Places browser and search
-- Reviews with accessibility feedback system
-- Route planning with accessibility tags
-- User authentication
-- Favorite places management
-- Release ready APK build configuration
+### Версия 1.0 (начальный выпуск)
+- Функция карт с маркерами доступных мест
+- Браузер и поиск мест
+- Отзывы с системой обратной связи по доступности
+- Планирование маршрутов с тегами доступности
+- Аутентификация пользователя
+- Управление избранными местами
+- Готовая конфигурация сборки APK для релиза

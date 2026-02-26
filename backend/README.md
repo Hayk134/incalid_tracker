@@ -1,70 +1,70 @@
-# Accessibility Navigation Platform - Backend API
+# Платформа навигации доступности - API бэкенда
 
-REST API backend for the accessibility navigation Android app. Provides endpoints for managing accessible places, user reviews with accessibility feedback, and accessible routes.
+REST API бэкенда для приложения навигации доступности Android. Предоставляет точки для управления доступными местами, отзывами пользователей с обратной связью по доступности и доступными маршрутами.
 
-## Setup
+## Настройка
 
-### Prerequisites
+### Предварительные требования
 - Python 3.8+
 - pip
 
-### Installation
+### Установка
 
-1. Install dependencies:
+1. Установите зависимости:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Run the API server:
+2. Запустите сервер API:
 ```bash
 python main.py
 ```
 
-The API will be available at `http://localhost:8000`
+API будет доступен по адресу `http://localhost:8000`
 
-## API Endpoints
+## Точки подключения API
 
-### Places
-- `GET /places/search` - Search accessible places by coordinates and filters
-- `GET /places/{place_id}` - Get place details
-- `POST /places/create` - Create a new place
-- `POST /places/filter` - Filter places by accessibility criteria
-- `POST /places/save` - Save place to favorites
-- `GET /places/saved` - Get saved places
+### Места
+- `GET /places/search` - Поиск доступных мест по координатам и фильтрам
+- `GET /places/{place_id}` - Получить детали места
+- `POST /places/create` - Создать новое место
+- `POST /places/filter` - Фильтровать места по критериям доступности
+- `POST /places/save` - Сохранить место в избранное
+- `GET /places/saved` - Получить сохраненные места
 
-### Reviews
-- `POST /reviews/create` - Create a review with accessibility feedback
-- `GET /reviews/place/{place_id}` - Get reviews for a place
-- `GET /reviews/my` - Get user's reviews
+### Отзывы
+- `POST /reviews/create` - Создать отзыв с обратной связью по доступности
+- `GET /reviews/place/{place_id}` - Получить отзывы для места
+- `GET /reviews/my` - Получить отзывы пользователя
 
-### Routes
-- `POST /routes/create` - Create an accessible route
-- `GET /routes/accessible` - Get accessible routes
-- `GET /routes/{route_id}` - Get route details
-- `POST /routes/{route_id}/add-place` - Add a place to a route
+### Маршруты
+- `POST /routes/create` - Создать доступный маршрут
+- `GET /routes/accessible` - Получить доступные маршруты
+- `GET /routes/{route_id}` - Получить детали маршрута
+- `POST /routes/{route_id}/add-place` - Добавить место в маршрут
 
-### Auth
-- `POST /auth/login/` - Login (mock implementation)
+### Аутентификация
+- `POST /auth/login/` - Вход (макет реализации)
 
-### Health
-- `GET /health` - Health check
+### Здоровье
+- `GET /health` - Проверка здоровья
 
-## Testing with cURL
+## Тестирование с cURL
 
 ```bash
-# Search places
+# Поиск мест
 curl "http://localhost:8000/places/search?latitude=47.2314&longitude=39.7258&radius_km=5"
 
-# Get place details
+# Получить детали места
 curl "http://localhost:8000/places/1"
 
-# Create a review
+# Создать отзыв
 curl -X POST "http://localhost:8000/reviews/create" \
   -H "Content-Type: application/json" \
   -d '{
     "place_id": 1,
     "rating": 4.5,
-    "text": "Great accessible cafe!",
+    "text": "Отличное доступное кафе!",
     "accessibility_feedback": {
       "difficulty_level": "easy",
       "staff_helpfulness": 5
@@ -72,22 +72,22 @@ curl -X POST "http://localhost:8000/reviews/create" \
   }'
 ```
 
-## Database
+## База данных
 
-Currently uses in-memory mock data storage. For production, integrate with a database like PostgreSQL or MongoDB.
+В настоящее время использует хранилище макетных данных в памяти. Для продакшена интегрируйте с базой данных, такой как PostgreSQL или MongoDB.
 
-Mock data includes:
-- 1 sample accessible place (Accessible Cafe Downtown in Rostov-on-Don)
-- Sample routes and reviews can be created through API
+Макетные данные включают:
+- 1 образец доступного места (доступное кафе downtown в Ростове-на-Дону)
+- Образцы маршрутов и отзывы можно создать через API
 
-## Deployment
+## Развертывание
 
-To deploy to production:
-1. Set up a proper database (PostgreSQL recommended)
-2. Configure authentication/JWT tokens
-3. Deploy to cloud service (AWS, Google Cloud, Azure, etc.)
-4. Update the `BASE_URL` in the Android app to point to the deployed API
+Для развертывания в продакшене:
+1. Установите правильную базу данных (PostgreSQL рекомендуется)
+2. Настройте аутентификацию/JWT токены
+3. Разверните на облачный сервис (AWS, Google Cloud, Azure и т.д.)
+4. Обновите `BASE_URL` в приложении Android, чтобы указать на развернутый API
 
-## License
+## Лицензия
 
 MIT

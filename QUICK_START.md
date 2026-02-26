@@ -1,98 +1,98 @@
-# Quick Start Guide
+# Руководство быстрого старта
 
-## 1. Clone and Setup (5 minutes)
+## 1. Клонирование и настройка (5 минут)
 
 ```bash
-# Clone the repository
+# Клонируйте репозиторий
 git clone <repository-url>
 cd incalid_tracker
 
-# Checkout the branch
+# Переключитесь на ветку
 git checkout navigation-app-for-disabled
 
-# Open in Android Studio
-# File → Open → Select project folder
+# Откройте в Android Studio
+# File → Open → Выберите папку проекта
 ```
 
-## 2. Start Backend Server (5 minutes)
+## 2. Запуск сервера бэкенда (5 минут)
 
 ```bash
 cd backend
 
-# Install Python dependencies
+# Установите зависимости Python
 pip install -r requirements.txt
 
-# Run the server
+# Запустите сервер
 python main.py
 
-# Backend is now running at http://localhost:8000
-# API docs at http://localhost:8000/docs
+# Бэкенд запущен на http://localhost:8000
+# Документация API на http://localhost:8000/docs
 ```
 
-## 3. Build and Run Android App (10 minutes)
+## 3. Сборка и запуск приложения Android (10 минут)
 
-### Option A: Using Android Studio (Easiest)
+### Вариант A: Использование Android Studio (Самый простой)
 
-1. Open project in Android Studio
-2. Wait for Gradle sync to complete
-3. Connect Android device via USB or use emulator
-4. Click "Run" (green play button)
-5. Select target device
+1. Откройте проект в Android Studio
+2. Дождитесь завершения синхронизации Gradle
+3. Подключите устройство Android через USB или используйте эмулятор
+4. Нажмите "Run" (зеленая кнопка)
+5. Выберите целевое устройство
 
-### Option B: Using Command Line
+### Вариант B: Использование командной строки
 
 ```bash
-# Build and run debug version
+# Соберите и запустите версию для отладки
 ./gradlew installDebug
 
-# Or build only
+# Или только соберите
 ./gradlew assembleDebug
 
-# Install to connected device
+# Установите на подключенное устройство
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-## 4. Test the App
+## 4. Тестирование приложения
 
-Once the app is running:
+После запуска приложения:
 
-1. **Maps Screen** - Shows accessible places near Rostov-on-Don
-2. **Places Tab** - Browse and search accessible places
-3. **Routes Tab** - Create and view accessible routes
-4. **Saved Tab** - View your saved favorite places
+1. **Экран карт** - Показывает доступные места рядом с Ростовом-на-Дону
+2. **Вкладка Места** - Просмотрите и ищите доступные места
+3. **Вкладка Маршруты** - Создавайте и просматривайте доступные маршруты
+4. **Вкладка Сохраненные** - Просмотрите ваши сохраненные избранные места
 
-### Sample Data
+### Примеры данных
 
-The backend includes mock data:
-- 1 sample accessible cafe at coordinates (47.2314, 39.7258)
-- You can create additional places/reviews via the API
+Бэкенд включает макетные данные:
+- 1 образец доступного кафе по координатам (47.2314, 39.7258)
+- Вы можете создать дополнительные места/отзывы через API
 
-### Test API Endpoint
+### Тестирование точки API
 
 ```bash
-# Get all places
+# Получить все места
 curl "http://localhost:8000/places/search?latitude=47.2314&longitude=39.7258&radius_km=5"
 
-# Get API docs
+# Получить документацию API
 curl http://localhost:8000/docs
 ```
 
-## 5. Build Release APK (10 minutes)
+## 5. Сборка релизного APK (10 минут)
 
-For creating a release-ready APK that can be shared or published:
+Для создания готового к выпуску APK, который можно распространять или публиковать:
 
-### Create Signing Keystore
+### Создание хранилища подписей
 
 ```bash
-# Create keystore (one-time)
+# Создайте хранилище (один раз)
 keytool -genkey -v -keystore app/keystore/what_apps_keystore.keystore \
   -keyalg RSA -keysize 2048 -validity 10000 \
   -alias investtravel -storepass keystore_pass -keypass key_pass
 ```
 
-### Create Keystore Config File
+### Создание файла конфигурации хранилища
 
-Create `app/keystore/keystore_config.properties`:
+Создайте `app/keystore/keystore_config.properties`:
 
 ```properties
 storeFile=./what_apps_keystore.keystore
@@ -101,175 +101,175 @@ keyAlias=investtravel
 keyPassword=key_pass
 ```
 
-### Build Release APK
+### Сборка релизного APK
 
 ```bash
-# Clean and build
+# Очистка и сборка
 ./gradlew clean assembleRelease
 
-# APK location: app/build/outputs/apk/release/app-release.apk
+# Расположение APK: app/build/outputs/apk/release/app-release.apk
 ```
 
-### Install Release APK
+### Установка релизного APK
 
 ```bash
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-## Project Structure Overview
+## Обзор структуры проекта
 
 ```
 incalid_tracker/
-├── app/                    # Main Android application
-│   ├── src/main/java/     # Kotlin source code
+├── app/                    # Основное приложение Android
+│   ├── src/main/java/     # Исходный код Kotlin
 │   │   └── app/what/investtravel/
-│   │       ├── data/      # API services, models
-│   │       ├── features/  # App features (places, reviews, routes)
+│   │       ├── data/      # Сервисы API, модели
+│   │       ├── features/  # Функции приложения (места, отзывы, маршруты)
 │   │       └── MainActivity.kt
-│   ├── keystore/          # Release signing keys
-│   └── build.gradle.kts   # App build config
+│   ├── keystore/          # Ключи подписи для релиза
+│   └── build.gradle.kts   # Конфигурация сборки приложения
 │
-├── backend/               # FastAPI backend server
-│   ├── main.py           # API implementation
-│   └── requirements.txt   # Python dependencies
+├── backend/               # Сервер бэкенда FastAPI
+│   ├── main.py           # Реализация API
+│   └── requirements.txt   # Зависимости Python
 │
-├── core/                 # Shared modules
-│   ├── foundation/       # DI, utilities
-│   └── navigation/       # Navigation components
+├── core/                 # Общие модули
+│   ├── foundation/       # DI, утилиты
+│   └── navigation/       # Компоненты навигации
 │
-├── PROJECT_README.md     # Full documentation
-├── APK_BUILD_GUIDE.md    # Release build guide
-└── QUICK_START.md        # This file
+├── PROJECT_README.md     # Полная документация
+├── APK_BUILD_GUIDE.md    # Руководство по сборке релиза
+└── QUICK_START.md        # Этот файл
 ```
 
-## Key Files
+## Ключевые файлы
 
-**Android App**:
-- `app/src/main/java/app/what/investtravel/data/remote/Models.kt` - Data models
-- `app/src/main/java/app/what/investtravel/data/remote/Services.kt` - API services
-- `app/src/main/java/app/what/investtravel/features/main/presentation/MainView.kt` - Maps UI
-- `app/build.gradle.kts` - Dependencies and build config
+**Приложение Android**:
+- `app/src/main/java/app/what/investtravel/data/remote/Models.kt` - Модели данных
+- `app/src/main/java/app/what/investtravel/data/remote/Services.kt` - Сервисы API
+- `app/src/main/java/app/what/investtravel/features/main/presentation/MainView.kt` - UI карт
+- `app/build.gradle.kts` - Зависимости и конфигурация сборки
 
-**Backend**:
-- `backend/main.py` - API endpoints implementation
-- `backend/requirements.txt` - Dependencies
+**Бэкенд**:
+- `backend/main.py` - Реализация точек API
+- `backend/requirements.txt` - Зависимости
 
-## Configuration
+## Конфигурация
 
-### Backend URL
+### URL бэкенда
 
-Edit `app/src/main/java/app/what/investtravel/data/remote/ApiClient.kt`:
+Отредактируйте `app/src/main/java/app/what/investtravel/data/remote/ApiClient.kt`:
 
 ```kotlin
 companion object {
-    const val BASE_URL = "http://your-server:8000"  // Change this
+    const val BASE_URL = "http://your-server:8000"  // Измените это
 }
 ```
 
-### Maps API Key
+### Ключ API карт
 
-The app is configured to use:
+Приложение настроено для использования:
 ```
 576b91a0-ac5c-421a-a932-38cbe1d4c633
 ```
 
-## Troubleshooting
+## Решение проблем
 
 ### "Module initialization failed"
 ```bash
-# Clean Gradle cache
+# Очистите кэш Gradle
 ./gradlew clean
 
-# Sync project
+# Синхронизируйте проект
 ./gradlew sync
 ```
 
-### Backend connection error
-1. Verify backend is running: `python backend/main.py`
-2. Check URL in `ApiClient.kt` matches backend address
-3. Verify firewall allows port 8000
+### Ошибка подключения бэкенда
+1. Убедитесь, что бэкенд работает: `python backend/main.py`
+2. Проверьте URL в `ApiClient.kt` соответствует адресу бэкенда
+3. Убедитесь, что брандмауэр разрешает порт 8000
 
-### Cannot find SDK
+### Не удается найти SDK
 ```bash
-# Update SDK location in Android Studio
+# Обновите расположение SDK в Android Studio
 Tools → SDK Manager → Android SDK Location
 ```
 
-### Build errors
+### Ошибки сборки
 ```bash
-# Full clean build
+# Полная чистая сборка
 ./gradlew clean
 ./gradlew build
 ```
 
-## Features Checklist
+## Контрольный список функций
 
-- [x] Maps with accessible place markers
-- [x] Places browser and detailed view
-- [x] Accessibility information display
-- [x] Reviews with accessibility feedback
-- [x] Route planning with accessibility tags
-- [x] Saved places management
-- [x] User authentication (mock)
-- [x] Backend REST API
-- [x] Release build configuration
-- [x] Proper signing for APK
+- [x] Карты с маркерами доступных мест
+- [x] Браузер мест и подробный просмотр
+- [x] Отображение информации о доступности
+- [x] Отзывы с обратной связью по доступности
+- [x] Планирование маршрутов с тегами доступности
+- [x] Управление сохраненными местами
+- [x] Аутентификация пользователя (макет)
+- [x] REST API бэкенда
+- [x] Конфигурация релизной сборки
+- [x] Правильная подпись для APK
 
-## Next Steps
+## Следующие шаги
 
-1. **Customize Backend**: Update database and data model if needed
-2. **Connect Real Maps**: Integrate Google Maps or Yandex Maps SDK
-3. **Deploy Backend**: Deploy to AWS, Google Cloud, Azure, or Heroku
-4. **Add Authentication**: Connect to real auth system
-5. **Publish to Play Store**: Upload release APK to Google Play
+1. **Настройте бэкенд**: обновите базу данных и модель данных при необходимости
+2. **Подключите реальные карты**: интегрируйте Google Maps или SDK Yandex Maps
+3. **Разверните бэкенд**: разверните на AWS, Google Cloud, Azure или Heroku
+4. **Добавьте аутентификацию**: подключитесь к реальной системе аутентификации
+5. **Опубликуйте в Play Store**: загрузите релизный APK в Google Play
 
-## Useful Commands
+## Полезные команды
 
 ```bash
-# Build debug
+# Сборка отладки
 ./gradlew assembleDebug
 
-# Build release
+# Сборка релиза
 ./gradlew assembleRelease
 
-# Run on device
+# Запуск на устройстве
 ./gradlew installDebug
 
-# View logs
+# Просмотр журналов
 adb logcat
 
-# List devices
+# Список устройств
 adb devices
 
-# Clear app data
+# Очистка данных приложения
 adb shell pm clear app.what.investtravel
 
-# Build APK + Bundle
+# Сборка APK + Bundle
 ./gradlew build
 
-# Check dependencies
+# Проверка зависимостей
 ./gradlew dependencies
 ```
 
-## Documentation
+## Документация
 
-- **Full Guide**: See [PROJECT_README.md](PROJECT_README.md)
-- **Release Build**: See [APK_BUILD_GUIDE.md](APK_BUILD_GUIDE.md)
-- **Backend Setup**: See [backend/README.md](backend/README.md)
+- **Полный гайд**: смотрите [PROJECT_README.md](PROJECT_README.md)
+- **Сборка релиза**: смотрите [APK_BUILD_GUIDE.md](APK_BUILD_GUIDE.md)
+- **Настройка бэкенда**: смотрите [backend/README.md](backend/README.md)
 
-## Get Help
+## Получить справку
 
-1. Check logs: `adb logcat | grep investtravel`
-2. View API docs: http://localhost:8000/docs
-3. Check backend console output
-4. Review code comments and documentation
+1. Проверьте журналы: `adb logcat | grep investtravel`
+2. Просмотрите документацию API: http://localhost:8000/docs
+3. Проверьте выход консоли бэкенда
+4. Просмотрите комментарии кода и документацию
 
-## Support Contact
+## Контакт поддержки
 
-For accessibility questions or feature requests:
-- Aleksey Olegovich Serov (@LeksGray)
-- Rostov State University of Economics (RINX)
+По вопросам доступности или запросам функций:
+- Алексей Олегович Серов (@LeksGray)
+- Ростовский государственный экономический университет (РИНХ)
 
 ---
 
-**Ready to build!** Start with step 1 above and you'll have the app running locally in ~30 minutes.
+**Готовы к сборке!** Начните с шага 1 выше, и у вас будет приложение, работающее локально примерно за 30 минут.
