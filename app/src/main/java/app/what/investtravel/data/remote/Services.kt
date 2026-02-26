@@ -13,52 +13,52 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 
-class HotelsService(
+// Accessible Places Service
+class PlacesService(
     private val apiClient: ApiClient,
     private val appValues: AppValues
 ) {
-
-    // Search Hotels
-    suspend fun searchHotels(
-        city: String,
-        checkIn: String? = null,
-        checkOut: String? = null,
-        guests: Int = 1,
-        rooms: Int = 1,
-        minPrice: Double? = null,
-        maxPrice: Double? = null,
-        stars: String? = null,
-        amenities: String? = null,
+    // Search Accessible Places with filters
+    suspend fun searchPlaces(
+        latitude: Double,
+        longitude: Double,
+        radiusKm: Float = 5f,
+        category: String? = null,
+        wheelchairAccessible: Boolean? = null,
         page: Int = 1,
         size: Int = 10
-    ): Result<HotelListResponse> {
+    ): Result<AccessiblePlacesResponse> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/search") {
+            get(ApiClient.BASE_URL + "/places/search") {
                 parameter("token", appValues.authToken.get())
-                parameter("city", city)
-                checkIn?.let { parameter("check_in", it) }
-                checkOut?.let { parameter("check_out", it) }
-                parameter("guests", guests)
-                parameter("auto_sync", false)
-                parameter("rooms", rooms)
-                minPrice?.let { parameter("min_price", it) }
-                maxPrice?.let { parameter("max_price", it) }
-                stars?.let { parameter("stars", it) }
-                amenities?.let { parameter("amenities", it) }
+                parameter("latitude", latitude)
+                parameter("longitude", longitude)
+                parameter("radius_km", radiusKm)
+                category?.let { parameter("category", it) }
+                wheelchairAccessible?.let { parameter("wheelchair_accessible", it) }
                 parameter("page", page)
                 parameter("size", size)
             }.body()
         }
     }
 
-    // Get Hotels by City
-    suspend fun getHotelsByCity(
-        city: String,
+    // Get Place by ID
+    suspend fun getPlaceById(placeId: Int): Result<AccessiblePlaceResponse> {
+        return apiClient.safeRequest {
+            get(ApiClient.BASE_URL + "/places/$placeId") {
+                parameter("token", appValues.authToken.get())
+            }.body()
+        }
+    }
+
+    // Get Places by Category
+    suspend fun getPlacesByCategory(
+        category: String,
         page: Int = 1,
         size: Int = 10
-    ): Result<HotelListResponse> {
+    ): Result<AccessiblePlacesResponse> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/city/$city") {
+            get(ApiClient.BASE_URL + "/places/category/$category") {
                 parameter("page", page)
                 parameter("size", size)
                 parameter("token", appValues.authToken.get())
@@ -66,56 +66,41 @@ class HotelsService(
         }
     }
 
-    // Get Hotel by ID
-    suspend fun getHotelById(hotelId: Int): Result<HotelResponse> {
-        return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/$hotelId") {
-                parameter("token", appValues.authToken.get())
-            }.body()
-        }
-    }
-
-    // Book Hotel
-    suspend fun bookHotel(bookingRequest: HotelBookingRequest): Result<HotelBookingResponse> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/book") {
-                parameter("token", appValues.authToken.get())
-                setBody(bookingRequest)
-            }.body()
-        }
-    }
-
-    // Get My Bookings
-    suspend fun getMyBookings(
+    // Apply Accessibility Filters
+    suspend fun filterPlaces(
+        filters: AccessibilityFilterRequest,
         page: Int = 1,
         size: Int = 10
-    ): Result<UserBookingsResponse> {
+    ): Result<AccessiblePlacesResponse> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/bookings/my") {
+            post(ApiClient.BASE_URL + "/places/filter") {
                 parameter("token", appValues.authToken.get())
                 parameter("page", page)
                 parameter("size", size)
+                contentType(ContentType.Application.Json)
+                setBody(filters)
             }.body()
         }
     }
 
-    // Create Payment
-    suspend fun createPayment(paymentRequest: HotelPaymentRequest): Result<HotelPaymentResponse> {
+    // Save Place to Favorites
+    suspend fun savePlace(saveRequest: SavedPlaceRequest): Result<SavedPlaceResponse> {
         return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/payments/create") {
+            post(ApiClient.BASE_URL + "/places/save") {
                 parameter("token", appValues.authToken.get())
-                setBody(paymentRequest)
+                contentType(ContentType.Application.Json)
+                setBody(saveRequest)
             }.body()
         }
     }
 
-    // Get My Payments
-    suspend fun getMyPayments(
+    // Get Saved Places
+    suspend fun getSavedPlaces(
         page: Int = 1,
         size: Int = 10
-    ): Result<UserPaymentsResponse> {
+    ): Result<List<SavedPlaceResponse>> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/payments/my") {
+            get(ApiClient.BASE_URL + "/places/saved") {
                 parameter("token", appValues.authToken.get())
                 parameter("page", page)
                 parameter("size", size)
@@ -123,30 +108,11 @@ class HotelsService(
         }
     }
 
-    // Simulate Payment Success (for testing)
-    suspend fun simulatePaymentSuccess(paymentId: Int): Result<Map<String, Any>> {
+    // Remove Saved Place
+    suspend fun removeSavedPlace(placeId: Int): Result<Map<String, Any>> {
         return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/payments/$paymentId/simulate-success") {
+            delete(ApiClient.BASE_URL + "/places/saved/$placeId") {
                 parameter("token", appValues.authToken.get())
-            }.body()
-        }
-    }
-
-    // Cancel Booking
-    suspend fun cancelBooking(bookingId: Int): Result<Map<String, Any>> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/bookings/$bookingId/cancel") {
-                parameter("token", appValues.authToken.get())
-            }.body()
-        }
-    }
-
-    // Payment Callback (usually called by payment provider)
-    suspend fun paymentCallback(callbackRequest: PaymentCallbackRequest): Result<Map<String, Any>> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/payments/callback") {
-                parameter("token", appValues.authToken.get())
-                setBody(callbackRequest)
             }.body()
         }
     }
@@ -224,38 +190,106 @@ class UsersService(
 }
 
 // Routes Service
-class RoutesService(
+// Reviews Service for Accessibility Feedback
+class ReviewsService(
     private val apiClient: ApiClient,
     private val appValues: AppValues
 ) {
-    suspend fun generateRoute(routeRequest: RouteRequest): Result<RouteResponse> {
+    // Create Review with Accessibility Feedback
+    suspend fun createReview(reviewRequest: ReviewCreateRequest): Result<ReviewResponse> {
         return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/routes/generate") {
+            post(ApiClient.BASE_URL + "/reviews/create") {
                 parameter("token", appValues.authToken.get())
                 contentType(ContentType.Application.Json)
-                setBody(routeRequest)
+                setBody(reviewRequest)
             }.body()
         }
     }
 
-    suspend fun getRoutes(
-        skip: Int = 0,
-        limit: Int = 100,
-        category: String? = null,
-        search: String? = null
-    ): Result<List<RouteResponse>> {
+    // Get Reviews for a Place
+    suspend fun getPlaceReviews(
+        placeId: Int,
+        page: Int = 1,
+        size: Int = 10
+    ): Result<ReviewsResponse> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/routes/") {
+            get(ApiClient.BASE_URL + "/reviews/place/$placeId") {
                 parameter("token", appValues.authToken.get())
-                parameter("skip", skip)
-                parameter("limit", limit)
-                category?.let { parameter("category", it) }
-                search?.let { parameter("search", it) }
+                parameter("page", page)
+                parameter("size", size)
             }.body()
         }
     }
 
-    suspend fun getRoute(routeId: Int): Result<RouteResponse> {
+    // Get User's Reviews
+    suspend fun getUserReviews(
+        page: Int = 1,
+        size: Int = 10
+    ): Result<ReviewsResponse> {
+        return apiClient.safeRequest {
+            get(ApiClient.BASE_URL + "/reviews/my") {
+                parameter("token", appValues.authToken.get())
+                parameter("page", page)
+                parameter("size", size)
+            }.body()
+        }
+    }
+
+    // Get Review by ID
+    suspend fun getReviewById(reviewId: Int): Result<ReviewResponse> {
+        return apiClient.safeRequest {
+            get(ApiClient.BASE_URL + "/reviews/$reviewId") {
+                parameter("token", appValues.authToken.get())
+            }.body()
+        }
+    }
+
+    // Delete Review
+    suspend fun deleteReview(reviewId: Int): Result<Map<String, Any>> {
+        return apiClient.safeRequest {
+            delete(ApiClient.BASE_URL + "/reviews/$reviewId") {
+                parameter("token", appValues.authToken.get())
+            }.body()
+        }
+    }
+}
+
+// Accessible Routes Service for Navigation
+class AccessibleRoutesService(
+    private val apiClient: ApiClient,
+    private val appValues: AppValues
+) {
+    // Create Accessible Route
+    suspend fun createRoute(routeName: String, routeDescription: String?): Result<AccessibleRouteResponse> {
+        return apiClient.safeRequest {
+            post(ApiClient.BASE_URL + "/routes/create") {
+                parameter("token", appValues.authToken.get())
+                parameter("name", routeName)
+                routeDescription?.let { parameter("description", it) }
+            }.body()
+        }
+    }
+
+    // Get Routes with Accessibility Tags
+    suspend fun getRoutes(
+        page: Int = 1,
+        size: Int = 10,
+        difficultyLevel: String? = null,
+        wheelchairFriendly: Boolean? = null
+    ): Result<AccessibleRoutesResponse> {
+        return apiClient.safeRequest {
+            get(ApiClient.BASE_URL + "/routes/accessible") {
+                parameter("token", appValues.authToken.get())
+                parameter("page", page)
+                parameter("size", size)
+                difficultyLevel?.let { parameter("difficulty_level", it) }
+                wheelchairFriendly?.let { parameter("wheelchair_friendly", it) }
+            }.body()
+        }
+    }
+
+    // Get Route by ID
+    suspend fun getRouteById(routeId: Int): Result<AccessibleRouteResponse> {
         return apiClient.safeRequest {
             get(ApiClient.BASE_URL + "/routes/$routeId") {
                 parameter("token", appValues.authToken.get())
@@ -263,57 +297,31 @@ class RoutesService(
         }
     }
 
-    suspend fun updateRoute(routeId: Int, routeData: Map<String, Any>): Result<RouteResponse> {
+    // Add Place to Route
+    suspend fun addPlaceToRoute(routeId: Int, placeId: Int): Result<AccessibleRouteResponse> {
         return apiClient.safeRequest {
-            put(ApiClient.BASE_URL + "/routes/$routeId") {
+            post(ApiClient.BASE_URL + "/routes/$routeId/add-place") {
                 parameter("token", appValues.authToken.get())
-                setBody(routeData)
+                parameter("place_id", placeId)
             }.body()
         }
     }
 
-    suspend fun deleteRoute(routeId: Int): Result<Unit> {
+    // Remove Place from Route
+    suspend fun removePlaceFromRoute(routeId: Int, placeId: Int): Result<AccessibleRouteResponse> {
         return apiClient.safeRequest {
-            delete(ApiClient.BASE_URL + "/routes/$routeId") {
-                parameter("token", appValues.authToken.get())
-            }
-        }
-    }
-
-    suspend fun duplicateRoute(routeId: Int, newName: String? = null): Result<RouteResponse> {
-        return apiClient.safeRequest {
-            post("/routes/$routeId/duplicate") {
-                parameter("token", appValues.authToken.get())
-                newName?.let { parameter("new_name", it) }
-            }.body()
-        }
-    }
-
-    suspend fun optimizeRoute(
-        routeId: Int,
-        optimizationRequest: RouteOptimizationRequest
-    ): Result<RouteResponse> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/routes/$routeId/optimize") {
-                parameter("token", appValues.authToken.get())
-                setBody(optimizationRequest)
-            }.body()
-        }
-    }
-
-    suspend fun getRouteStats(): Result<RouteStats> {
-        return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/routes/stats/overview") {
+            delete(ApiClient.BASE_URL + "/routes/$routeId/remove-place/$placeId") {
                 parameter("token", appValues.authToken.get())
             }.body()
         }
     }
 
+    // Get Routes Nearby User
     suspend fun getRoutesNearby(
         latitude: Double,
         longitude: Double,
-        radiusKm: Double = 10.0
-    ): Result<List<RouteResponse>> {
+        radiusKm: Float = 10f
+    ): Result<AccessibleRoutesResponse> {
         return apiClient.safeRequest {
             get(ApiClient.BASE_URL + "/routes/nearby") {
                 parameter("token", appValues.authToken.get())
@@ -323,28 +331,80 @@ class RoutesService(
             }.body()
         }
     }
+
+    // Filter Routes by Accessibility Criteria
+    suspend fun filterRoutes(
+        filters: RouteFilterRequest,
+        page: Int = 1,
+        size: Int = 10
+    ): Result<AccessibleRoutesResponse> {
+        return apiClient.safeRequest {
+            post(ApiClient.BASE_URL + "/routes/filter") {
+                parameter("token", appValues.authToken.get())
+                parameter("page", page)
+                parameter("size", size)
+                contentType(ContentType.Application.Json)
+                setBody(filters)
+            }.body()
+        }
+    }
+
+    // Delete Route
+    suspend fun deleteRoute(routeId: Int): Result<Map<String, Any>> {
+        return apiClient.safeRequest {
+            delete(ApiClient.BASE_URL + "/routes/$routeId") {
+                parameter("token", appValues.authToken.get())
+            }.body()
+        }
+    }
 }
+// AI Service with Mock Implementations for Accessibility Analysis
 class AiService(
     private val apiClient: ApiClient,
     private val appValues: AppValues
 ) {
-    suspend fun generateComment(data: GenerateCommentRequest): Result<GenerateCommentResponse>{
-        return apiClient.safeRequest {
-            post("ai/ai/generate-comment") {
-                parameter("token", appValues.authToken.get())
-                contentType(ContentType.Application.Json)
-                setBody(data)
-            }.body()
+    // Mock: Analyze accessibility feedback from text
+    suspend fun analyzeAccessibilityFeedback(data: AiAccessibilityAnalysisRequest): Result<AiAccessibilityAnalysisResponse> {
+        return try {
+            // Mock response - in production would call AI API
+            val mockResponse = AiAccessibilityAnalysisResponse(
+                analysis = "This place shows good accessibility features for wheelchair users. Staff appears helpful.",
+                success = true,
+                confidence = 0.85f
+            )
+            Result.success(mockResponse)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
-    
-    suspend fun generateAiRoute(data: AiRouteRequest): Result<AiRouteResponse> {
-        return apiClient.safeRequest {
-            post("/ai-route/generate") {
-                parameter("token", appValues.authToken.get())
-                contentType(ContentType.Application.Json)
-                setBody(data)
-            }.body()
+
+    // Mock: Generate optimal accessible route based on user preferences
+    suspend fun generateAccessibleRoute(data: AiRouteGenerationRequest): Result<AiRouteGenerationResponse> {
+        return try {
+            // Mock response - in production would call AI route generation service
+            val mockResponse = AiRouteGenerationResponse(
+                success = true,
+                route = null,
+                aiRecommendations = "Based on accessibility requirements, consider starting at cafes with wheelchair access, then moving to accessible parks.",
+                errorMessage = null
+            )
+            Result.success(mockResponse)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Mock: Generate recommendations for accessibility improvements
+    suspend fun generateAccessibilityRecommendations(placeId: Int): Result<Map<String, String>> {
+        return try {
+            val recommendations = mapOf(
+                "suggestion_1" to "Add a ramp at the entrance for wheelchair access",
+                "suggestion_2" to "Install an accessible toilet on the ground floor",
+                "suggestion_3" to "Train staff on accessibility best practices"
+            )
+            Result.success(recommendations)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

@@ -7,9 +7,10 @@ class ApiClient(
     private val client: HttpClient,
     private val appValues: AppValues
 ) {
-    // TODO: use appValues.authToken.get() or .set()
+    // Note: Maps API Key - 576b91a0-ac5c-421a-a932-38cbe1d4c633
     companion object {
-        const val BASE_URL = "http://45.155.207.232:1478"
+        const val BASE_URL = "http://45.155.207.232:1478" // Backend API for places, reviews, routes
+        const val MAPS_API_KEY = "576b91a0-ac5c-421a-a932-38cbe1d4c633" // Maps API for displaying markers
     }
 
     suspend fun <T> safeRequest(block: suspend HttpClient.() -> T): Result<T> {
