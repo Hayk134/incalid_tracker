@@ -11,7 +11,9 @@ import app.what.investtravel.data.local.settings.AppValues
 import app.what.investtravel.data.remote.AiService
 import app.what.investtravel.data.remote.ApiClient
 import app.what.investtravel.data.remote.AuthService
-import app.what.investtravel.data.remote.HotelsService
+import app.what.investtravel.data.remote.PlacesService
+import app.what.investtravel.data.remote.MarkersService
+import app.what.investtravel.data.remote.ReviewsService
 import app.what.investtravel.data.remote.RoutesService
 import app.what.investtravel.data.remote.UsersService
 import app.what.investtravel.features.assistant.domain.AssistantController
@@ -29,7 +31,6 @@ import app.what.investtravel.utils.AppUtils
 import com.google.android.gms.location.LocationServices
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.runtime.image.ImageProvider
-import com.yandex.runtime.image.ResourceImageProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -50,7 +51,7 @@ class InvestTravelApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        MapKitFactory.setApiKey("56a9a2d2-2738-4544-9bdf-2f323b59ec6a")
+        MapKitFactory.setApiKey("576b91a0-ac5c-421a-a932-38cbe1d4c633")
         MapKitFactory.initialize(applicationContext)
         CrashHandler.initialize(applicationContext)
         AppLogger.initialize(applicationContext)
@@ -73,14 +74,16 @@ val generalModule = module {
     single { AuthService(get(), get()) }
     single { UsersService(get(), get()) }
     single { RoutesService(get(), get()) }
-    single { HotelsService(get(), get()) }
+    single { PlacesService(get(), get()) }
+    single { MarkersService(get(), get()) }
+    single { ReviewsService(get(), get()) }
     single { AiService(get(), get()) }
 
     single { Geocoder(get(), Locale.getDefault()) }
     single { LocationServices.getFusedLocationProviderClient(androidContext()) }
 
-    single<HotelController> { HotelController(get(), get(), get(), get()) }
-    single<ProfileController> { ProfileController(get(),get()) }
+    single<HotelController> { HotelController(get(), get(), get()) }
+    single<ProfileController> { ProfileController(get(), get()) }
     single<AssistantController> { AssistantController() }
     single<AuthController> { AuthController(get(), get(), get()) }
     single<TravelController> { TravelController { ImageProvider.fromResource(androidContext(), it) } }
@@ -92,12 +95,15 @@ val generalModule = module {
         Room.databaseBuilder(
             androidContext(),
             AppDatabase::class.java,
-            "investtravel.db"
-        ).build()
+            "accessible_rostov.db"
+        ).fallbackToDestructiveMigration().build()
     }
-    
+
     single { get<AppDatabase>().routesDao() }
     single { get<AppDatabase>().routePointsDao() }
+    single { get<AppDatabase>().placesDao() }
+    single { get<AppDatabase>().markersDao() }
+    single { get<AppDatabase>().reviewsDao() }
 
     single {
         HttpClient(CIO) {
@@ -122,7 +128,6 @@ val generalModule = module {
                 })
             }
             defaultRequest {
-                // Подставляем базовый URL для всех запросов
                 url(ApiClient.BASE_URL)
             }
             engine {

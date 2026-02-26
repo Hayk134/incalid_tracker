@@ -38,8 +38,13 @@ class AppValues(context: Context) {
     val isFirstLaunch = storage.createValue("is_first_launch", true, Boolean.serializer())
     val themeType = storage.createValue("theme_type", ThemeType.System, ThemeType.serializer())
     val themeStyle = storage.createValue("theme_style", ThemeStyle.Default, ThemeStyle.serializer())
-    val themeColor = storage.createValue("theme_color", Color(0xFF94FF28).value, ULong.serializer())
+    val themeColor = storage.createValue("theme_color", Color(0xFF2196F3).value, ULong.serializer())
     val devFeaturesEnabled =
         storage.createValue("dev_features_enabled", false, Boolean.serializer())
-}
 
+    // Accessibility-specific preferences
+    val selectedDisabilityTypes = storage.createValue("selected_disability_types", "", String.serializer())
+    val selectedAccessibilityTags = storage.createValue("selected_accessibility_tags", "", String.serializer())
+    val highContrastMode = storage.createValue("high_contrast_mode", false, Boolean.serializer())
+    val largeFontMode = storage.createValue("large_font_mode", false, Boolean.serializer())
+}

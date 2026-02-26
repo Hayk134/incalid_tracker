@@ -3,165 +3,166 @@ package app.what.investtravel.data.remote
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// === Enums ===
 
 @Serializable
-data class HotelListResponse(
-    @SerialName("hotels") val hotels: List<HotelResponse>,
+enum class DisabilityType(val displayName: String) {
+    @SerialName("wheelchair") WHEELCHAIR("Колясочники"),
+    @SerialName("visually_impaired") VISUALLY_IMPAIRED("Слабовидящие"),
+    @SerialName("hearing_impaired") HEARING_IMPAIRED("Слабослышащие"),
+    @SerialName("limited_mobility") LIMITED_MOBILITY("Ограниченная подвижность"),
+    @SerialName("cognitive") COGNITIVE("Когнитивные нарушения"),
+    @SerialName("elderly") ELDERLY("Пожилые"),
+    @SerialName("stroller") STROLLER("С колясками");
+
+    companion object {
+        fun fromString(s: String): DisabilityType? = entries.find { it.name.equals(s, true) || s == it.displayName }
+        fun fromCsv(csv: String): List<DisabilityType> = csv.split(",").mapNotNull { fromString(it.trim()) }
+    }
+}
+
+@Serializable
+enum class AccessibilityTag(val displayName: String) {
+    @SerialName("ramp") RAMP("Пандус"),
+    @SerialName("wide_door") WIDE_DOOR("Широкие двери"),
+    @SerialName("elevator") ELEVATOR("Лифт"),
+    @SerialName("tactile_tiles") TACTILE_TILES("Тактильная плитка"),
+    @SerialName("audio_guide") AUDIO_GUIDE("Аудиогид"),
+    @SerialName("vibro_signal") VIBRO_SIGNAL("Вибросигнал"),
+    @SerialName("subtitles") SUBTITLES("Субтитры"),
+    @SerialName("handrails") HANDRAILS("Поручни"),
+    @SerialName("parking_disabled") PARKING_DISABLED("Парковка для инвалидов"),
+    @SerialName("low_floor_transport") LOW_FLOOR_TRANSPORT("Низкопольный транспорт"),
+    @SerialName("bench") BENCH("Скамейки"),
+    @SerialName("rest_area") REST_AREA("Зона отдыха"),
+    @SerialName("simple_navigation") SIMPLE_NAVIGATION("Простая навигация"),
+    @SerialName("braille") BRAILLE("Шрифт Брайля");
+
+    companion object {
+        fun fromString(s: String): AccessibilityTag? = entries.find { it.name.equals(s, true) || s == it.displayName }
+        fun fromCsv(csv: String): List<AccessibilityTag> = csv.split(",").mapNotNull { fromString(it.trim()) }
+    }
+}
+
+@Serializable
+enum class PlaceCategory(val displayName: String) {
+    @SerialName("cafe") CAFE("Кафе"),
+    @SerialName("restaurant") RESTAURANT("Рестораны"),
+    @SerialName("shop") SHOP("Магазины"),
+    @SerialName("clinic") CLINIC("Поликлиники"),
+    @SerialName("theater") THEATER("Театры"),
+    @SerialName("cinema") CINEMA("Кинотеатры"),
+    @SerialName("transport_stop") TRANSPORT_STOP("Остановки"),
+    @SerialName("park") PARK("Парки"),
+    @SerialName("museum") MUSEUM("Музеи"),
+    @SerialName("pharmacy") PHARMACY("Аптеки"),
+    @SerialName("bank") BANK("Банки"),
+    @SerialName("government") GOVERNMENT("Госуслуги"),
+    @SerialName("sport") SPORT("Спорт"),
+    @SerialName("library") LIBRARY("Библиотеки");
+
+    companion object {
+        fun fromString(s: String): PlaceCategory? = entries.find { it.name.equals(s, true) }
+    }
+}
+
+// === Places (replaces Hotels) ===
+
+@Serializable
+data class PlaceListResponse(
+    @SerialName("places") val places: List<PlaceResponse>,
     @SerialName("total") val total: Int,
     @SerialName("page") val page: Int,
-    @SerialName("size") val size: Int,
-    @SerialName("total_pages") val totalPages: Int
+    @SerialName("size") val size: Int
 )
 
 @Serializable
-data class HotelResponse(
+data class PlaceResponse(
     @SerialName("id") val id: Int,
     @SerialName("name") val name: String,
     @SerialName("description") val description: String? = null,
-    @SerialName("address") val address: String,
-    @SerialName("city") val city: String,
+    @SerialName("category") val category: String,
+    @SerialName("address") val address: String? = null,
     @SerialName("latitude") val latitude: Double,
     @SerialName("longitude") val longitude: Double,
     @SerialName("phone") val phone: String? = null,
-    @SerialName("email") val email: String? = null,
     @SerialName("website") val website: String? = null,
-    @SerialName("stars") val stars: Int = 3,
-    @SerialName("price_per_night") val pricePerNight: Float,
-    @SerialName("currency") val currency: String = "RUB",
-    @SerialName("amenities") val amenities: List<String>? = null,
-    @SerialName("images") val images: List<String>? = null,
-    @SerialName("status") val status: String,
-    @SerialName("created_at") val createdAt: String,
-    @SerialName("updated_at") val updatedAt: String? = null,
-    @SerialName("google_reviews_count") val googleReviewsCount: Int? = null
+    @SerialName("images") val images: String? = null,
+    @SerialName("accessibility_tags") val accessibilityTags: String? = null,
+    @SerialName("disability_types") val disabilityTypes: String? = null,
+    @SerialName("rating") val rating: Float = 0f,
+    @SerialName("reviews_count") val reviewsCount: Int = 0,
+    @SerialName("status") val status: String? = "active",
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("reviews") val reviews: List<ReviewResponse>? = null
 )
 
-@Serializable
-enum class HotelStatus {
-    @SerialName("active")
-    ACTIVE,
-
-    @SerialName("inactive")
-    INACTIVE,
-
-    @SerialName("maintenance")
-    MAINTENANCE
-}
-
-// Booking Models
-@Serializable
-data class HotelBookingRequest(
-    @SerialName("hotel_id") val hotelId: Int,
-    @SerialName("check_in_date") val checkInDate: String,
-    @SerialName("check_out_date") val checkOutDate: String,
-    @SerialName("guests_count") val guestsCount: Int = 1,
-    @SerialName("rooms_count") val roomsCount: Int = 1,
-    @SerialName("special_requests") val specialRequests: String? = null
-)
+// === Markers ===
 
 @Serializable
-data class HotelBookingResponse(
-    @SerialName("id") val id: Int,
-    @SerialName("hotel_id") val hotelId: Int,
-    @SerialName("user_id") val userId: Int,
-    @SerialName("check_in_date") val checkInDate: String,
-    @SerialName("check_out_date") val checkOutDate: String,
-    @SerialName("guests_count") val guestsCount: Int,
-    @SerialName("rooms_count") val roomsCount: Int,
-    @SerialName("total_price") val totalPrice: Double,
-    @SerialName("currency") val currency: String,
-    @SerialName("status") val status: BookingStatus,
-    @SerialName("special_requests") val specialRequests: String? = null,
-    @SerialName("created_at") val createdAt: String,
-    @SerialName("updated_at") val updatedAt: String? = null
-)
-
-@Serializable
-enum class BookingStatus {
-    @SerialName("pending")
-    PENDING,
-
-    @SerialName("confirmed")
-    CONFIRMED,
-
-    @SerialName("cancelled")
-    CANCELLED,
-
-    @SerialName("completed")
-    COMPLETED
-}
-
-// Payment Models
-@Serializable
-data class HotelPaymentRequest(
-    @SerialName("booking_id") val bookingId: Int,
-    @SerialName("payment_method") val paymentMethod: String,
-    @SerialName("payment_provider") val paymentProvider: String? = "mock"
-)
-
-@Serializable
-data class HotelPaymentResponse(
-    @SerialName("id") val id: Int,
-    @SerialName("booking_id") val bookingId: Int,
-    @SerialName("hotel_id") val hotelId: Int,
-    @SerialName("user_id") val userId: Int,
-    @SerialName("amount") val amount: Double,
-    @SerialName("currency") val currency: String,
-    @SerialName("payment_method") val paymentMethod: String,
-    @SerialName("payment_provider") val paymentProvider: String?,
-    @SerialName("external_payment_id") val externalPaymentId: String? = null,
-    @SerialName("status") val status: PaymentStatus,
-    @SerialName("payment_url") val paymentUrl: String? = null,
-    @SerialName("failure_reason") val failureReason: String? = null,
-    @SerialName("created_at") val createdAt: String,
-    @SerialName("updated_at") val updatedAt: String? = null,
-    @SerialName("paid_at") val paidAt: String? = null
-)
-
-@Serializable
-enum class PaymentStatus {
-    @SerialName("pending")
-    PENDING,
-
-    @SerialName("completed")
-    COMPLETED,
-
-    @SerialName("failed")
-    FAILED,
-
-    @SerialName("cancelled")
-    CANCELLED,
-
-    @SerialName("refunded")
-    REFUNDED
-}
-
-// User Bookings & Payments Responses
-@Serializable
-data class UserBookingsResponse(
-    @SerialName("bookings") val bookings: List<HotelBookingResponse>,
+data class MarkerListResponse(
+    @SerialName("markers") val markers: List<MarkerResponse>,
     @SerialName("total") val total: Int,
     @SerialName("page") val page: Int,
     @SerialName("size") val size: Int
 )
 
 @Serializable
-data class UserPaymentsResponse(
-    @SerialName("payments") val payments: List<HotelPaymentResponse>,
-    @SerialName("total") val total: Int,
-    @SerialName("page") val page: Int,
-    @SerialName("size") val size: Int
+data class MarkerResponse(
+    @SerialName("id") val id: Int,
+    @SerialName("user_id") val userId: Int,
+    @SerialName("title") val title: String,
+    @SerialName("description") val description: String? = null,
+    @SerialName("latitude") val latitude: Double,
+    @SerialName("longitude") val longitude: Double,
+    @SerialName("marker_type") val markerType: String? = "general",
+    @SerialName("accessibility_tags") val accessibilityTags: String? = null,
+    @SerialName("photos") val photos: String? = null,
+    @SerialName("votes_up") val votesUp: Int = 0,
+    @SerialName("votes_down") val votesDown: Int = 0,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("user_name") val userName: String? = null,
+    @SerialName("user_login") val userLogin: String? = null,
+    @SerialName("reviews") val reviews: List<ReviewResponse>? = null
 )
 
-// Payment Callback
 @Serializable
-data class PaymentCallbackRequest(
-    @SerialName("payment_id") val paymentId: String,
-    @SerialName("status") val status: String,
-    @SerialName("amount") val amount: Double? = null,
-    @SerialName("currency") val currency: String? = null,
-    @SerialName("signature") val signature: String? = null
+data class MarkerCreateRequest(
+    @SerialName("title") val title: String,
+    @SerialName("description") val description: String? = null,
+    @SerialName("latitude") val latitude: Double,
+    @SerialName("longitude") val longitude: Double,
+    @SerialName("marker_type") val markerType: String = "general",
+    @SerialName("accessibility_tags") val accessibilityTags: String = "",
+    @SerialName("photos") val photos: String = "[]"
 )
+
+// === Reviews ===
+
+@Serializable
+data class ReviewResponse(
+    @SerialName("id") val id: Int,
+    @SerialName("user_id") val userId: Int,
+    @SerialName("place_id") val placeId: Int? = null,
+    @SerialName("marker_id") val markerId: Int? = null,
+    @SerialName("text") val text: String? = null,
+    @SerialName("rating") val rating: Int = 0,
+    @SerialName("photos") val photos: String? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("user_name") val userName: String? = null,
+    @SerialName("user_login") val userLogin: String? = null
+)
+
+@Serializable
+data class ReviewCreateRequest(
+    @SerialName("place_id") val placeId: Int? = null,
+    @SerialName("marker_id") val markerId: Int? = null,
+    @SerialName("text") val text: String,
+    @SerialName("rating") val rating: Int,
+    @SerialName("photos") val photos: String = "[]"
+)
+
+// === Auth ===
 
 @Serializable
 data class LoginRequest(
@@ -170,12 +171,28 @@ data class LoginRequest(
 )
 
 @Serializable
+data class LoginResponse(
+    @SerialName("token") val token: String,
+    @SerialName("user") val user: UserResponse? = null
+)
+
+@Serializable
 data class TokenResponse(
     @SerialName("access_token") val accessToken: String,
     @SerialName("token_type") val tokenType: String = "bearer"
 )
 
-// User Models
+@Serializable
+data class RegisterRequest(
+    @SerialName("login") val login: String,
+    @SerialName("email") val email: String,
+    @SerialName("password") val password: String,
+    @SerialName("name") val name: String? = null,
+    @SerialName("disability_types") val disabilityTypes: String? = null
+)
+
+// === Users ===
+
 @Serializable
 data class UserCreate(
     @SerialName("login") val login: String,
@@ -183,6 +200,17 @@ data class UserCreate(
     @SerialName("name") val name: String? = null,
     @SerialName("email") val email: String? = null,
     @SerialName("password") val password: String = ""
+)
+
+@Serializable
+data class UserResponse(
+    @SerialName("id") val id: Int,
+    @SerialName("login") val login: String,
+    @SerialName("name") val name: String? = null,
+    @SerialName("email") val email: String? = null,
+    @SerialName("role") val role: String? = null,
+    @SerialName("disability_types") val disabilityTypes: String? = null,
+    @SerialName("created_at") val createdAt: String? = null
 )
 
 @Serializable
@@ -200,7 +228,6 @@ data class UserMoreModel(
     @SerialName("email") val email: String?
 )
 
-// Role Models
 @Serializable
 data class Role(
     @SerialName("id") val id: Int,
@@ -218,29 +245,20 @@ data class RoleGet(
     @SerialName("name") val name: String
 )
 
-// Route Models
+// === Routes (Accessible) ===
+
 @Serializable
-data class RouteRequest(
-    @SerialName("start_date") val startDate: String,
-    @SerialName("end_date") val endDate: String,
-    @SerialName("food_time") val foodTime: Int = 0,
-    @SerialName("restaurant") val restaurant: Int = 0,
-    @SerialName("fast_food_time") val fastFoodTime: Int = 0,
-    @SerialName("cafe_time") val cafeTime: Int = 0,
-    @SerialName("bar_time") val barTime: Int = 0,
-    @SerialName("tourism_time") val tourismTime: Int = 0,
-    @SerialName("tourism") val tourism: Int = 0,
-    @SerialName("art_time") val artTime: Int = 0,
-    @SerialName("art") val art: Int = 0,
-    @SerialName("leisure_time") val leisureTime: Int = 0,
-    @SerialName("shopping_time") val shoppingTime: Int = 0,
-    @SerialName("meals_per_day") val mealsPerDay: Int = 3,
-    @SerialName("start_latitude") val startLatitude: Double,
-    @SerialName("start_longitude") val startLongitude: Double,
-    @SerialName("max_distance_km") val maxDistanceKm: Double = 50.0,
-    @SerialName("prefer_nearby") val preferNearby: Boolean = true,
-    @SerialName("avoid_night_time") val avoidNightTime: Boolean = true,
-    @SerialName("require_food_points") val requireFoodPoints: Boolean = true
+data class AccessibleRouteRequest(
+    @SerialName("name") val name: String? = null,
+    @SerialName("description") val description: String? = null,
+    @SerialName("start_lat") val startLat: Double,
+    @SerialName("start_lon") val startLon: Double,
+    @SerialName("end_lat") val endLat: Double? = null,
+    @SerialName("end_lon") val endLon: Double? = null,
+    @SerialName("disability_types") val disabilityTypes: String = "",
+    @SerialName("avoid_stairs") val avoidStairs: Boolean = true,
+    @SerialName("prefer_ramps") val preferRamps: Boolean = true,
+    @SerialName("max_distance_km") val maxDistanceKm: Double = 10.0
 )
 
 @Serializable
@@ -248,51 +266,27 @@ data class RouteResponse(
     @SerialName("id") val id: Int,
     @SerialName("name") val name: String,
     @SerialName("description") val description: String?,
-    @SerialName("start_date") val startDate: String,
-    @SerialName("end_date") val endDate: String,
-    @SerialName("total_duration_hours") val totalDurationHours: Float,
-    @SerialName("total_distance_km") val totalDistanceKm: Float,
-    @SerialName("total_objects") val totalObjects: Int,
-    @SerialName("categories_covered") val categoriesCovered: List<String>,
-    @SerialName("points") val points: List<RoutePointResponse>,
+    @SerialName("disability_types") val disabilityTypes: String? = null,
+    @SerialName("total_duration_hours") val totalDurationHours: Float = 0f,
+    @SerialName("total_distance_km") val totalDistanceKm: Float = 0f,
+    @SerialName("points") val points: List<RoutePointResponse> = emptyList(),
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("user_id") val userId: Int? = null
 )
 
 @Serializable
 data class RoutePointResponse(
     @SerialName("order") val order: Int,
     @SerialName("name") val name: String,
-    @SerialName("category") val category: String,
-    @SerialName("subcategory") val subcategory: String?,
     @SerialName("latitude") val latitude: Double,
     @SerialName("longitude") val longitude: Double,
-    @SerialName("address") val address: String?,
-    @SerialName("arrival_time") val arrivalTime: String,
-    @SerialName("departure_time") val departureTime: String,
-    @SerialName("duration_minutes") val durationMinutes: Int,
-    @SerialName("travel_time_minutes") val travelTimeMinutes: Int?,
-    @SerialName("description") val description: String?,
-    @SerialName("distance_to_next_km") val distanceToNextKm: Float?,
-    @SerialName("image_url") val imageUrl: String? = null
+    @SerialName("accessibility_tags") val accessibilityTags: String? = null,
+    @SerialName("category") val category: String? = null,
+    @SerialName("address") val address: String? = null
 )
 
-@Serializable
-data class RouteOptimizationRequest(
-    @SerialName("route_id") val routeId: Int,
-    @SerialName("optimization_type") val optimizationType: String = "distance",
-    @SerialName("constraints") val constraints: Map<String, String> = emptyMap()// TODO: Map<String, Any>
-)
+// === Common ===
 
-@Serializable
-data class RouteStats(
-    @SerialName("total_routes") val totalRoutes: Int,
-    @SerialName("active_routes") val activeRoutes: Int,
-    @SerialName("total_distance_km") val totalDistanceKm: Double,
-    @SerialName("average_route_duration") val averageRouteDuration: Double,
-    @SerialName("most_popular_categories") val mostPopularCategories: List<String>,
-    @SerialName("routes_by_month") val routesByMonth: Map<String, Int>
-)
-
-// Common Models
 @Serializable
 data class ErrorResponse(
     @SerialName("detail") val detail: List<ValidationError>
@@ -300,10 +294,12 @@ data class ErrorResponse(
 
 @Serializable
 data class ValidationError(
-    @SerialName("loc") val location: List<String>, // TODO: List<Any>
+    @SerialName("loc") val location: List<String>,
     @SerialName("msg") val message: String,
     @SerialName("type") val type: String
 )
+
+// === AI Stub ===
 
 @Serializable
 data class GenerateCommentRequest(
@@ -327,7 +323,21 @@ data class AiRouteRequest(
 @Serializable
 data class AiRouteResponse(
     @SerialName("success") val success: Boolean,
-    @SerialName("route") val route: RouteResponse,
+    @SerialName("route") val route: RouteResponse? = null,
     @SerialName("ai_recommendations") val aiRecommendations: String?,
     @SerialName("error_message") val errorMessage: String?
+)
+
+// === Reference ===
+
+@Serializable
+data class CategoryInfo(
+    @SerialName("id") val id: String,
+    @SerialName("name") val name: String,
+    @SerialName("icon") val icon: String
+)
+
+@Serializable
+data class VoteRequest(
+    @SerialName("vote") val vote: String // "up" or "down"
 )

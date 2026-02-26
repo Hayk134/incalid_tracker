@@ -1,10 +1,10 @@
 package app.what.investtravel.data.remote
 
-
 import app.what.investtravel.data.local.settings.AppValues
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.put
@@ -13,161 +13,190 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 
-class HotelsService(
+// === Places Service (replaces HotelsService) ===
+
+class PlacesService(
     private val apiClient: ApiClient,
     private val appValues: AppValues
 ) {
-
-    // Search Hotels
-    suspend fun searchHotels(
-        city: String,
-        checkIn: String? = null,
-        checkOut: String? = null,
-        guests: Int = 1,
-        rooms: Int = 1,
-        minPrice: Double? = null,
-        maxPrice: Double? = null,
-        stars: String? = null,
-        amenities: String? = null,
+    suspend fun searchPlaces(
+        category: String? = null,
+        disabilityTypes: String? = null,
+        tags: String? = null,
+        search: String? = null,
         page: Int = 1,
-        size: Int = 10
-    ): Result<HotelListResponse> {
+        size: Int = 20
+    ): Result<PlaceListResponse> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/search") {
-                parameter("token", appValues.authToken.get())
-                parameter("city", city)
-                checkIn?.let { parameter("check_in", it) }
-                checkOut?.let { parameter("check_out", it) }
-                parameter("guests", guests)
-                parameter("auto_sync", false)
-                parameter("rooms", rooms)
-                minPrice?.let { parameter("min_price", it) }
-                maxPrice?.let { parameter("max_price", it) }
-                stars?.let { parameter("stars", it) }
-                amenities?.let { parameter("amenities", it) }
+            get(ApiClient.BASE_URL + "/places") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+                category?.let { parameter("category", it) }
+                disabilityTypes?.let { parameter("disability_types", it) }
+                tags?.let { parameter("tags", it) }
+                search?.let { parameter("search", it) }
                 parameter("page", page)
                 parameter("size", size)
             }.body()
         }
     }
 
-    // Get Hotels by City
-    suspend fun getHotelsByCity(
-        city: String,
-        page: Int = 1,
-        size: Int = 10
-    ): Result<HotelListResponse> {
+    suspend fun getPlace(placeId: Int): Result<PlaceResponse> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/city/$city") {
-                parameter("page", page)
-                parameter("size", size)
-                parameter("token", appValues.authToken.get())
+            get(ApiClient.BASE_URL + "/places/$placeId") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
             }.body()
         }
     }
 
-    // Get Hotel by ID
-    suspend fun getHotelById(hotelId: Int): Result<HotelResponse> {
+    suspend fun getCategories(): Result<List<CategoryInfo>> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/$hotelId") {
-                parameter("token", appValues.authToken.get())
-            }.body()
+            get(ApiClient.BASE_URL + "/places/categories").body()
         }
     }
 
-    // Book Hotel
-    suspend fun bookHotel(bookingRequest: HotelBookingRequest): Result<HotelBookingResponse> {
+    suspend fun createPlace(
+        name: String,
+        description: String,
+        category: String,
+        address: String,
+        latitude: Double,
+        longitude: Double,
+        accessibilityTags: String,
+        disabilityTypes: String
+    ): Result<PlaceResponse> {
         return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/book") {
-                parameter("token", appValues.authToken.get())
-                setBody(bookingRequest)
-            }.body()
-        }
-    }
-
-    // Get My Bookings
-    suspend fun getMyBookings(
-        page: Int = 1,
-        size: Int = 10
-    ): Result<UserBookingsResponse> {
-        return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/bookings/my") {
-                parameter("token", appValues.authToken.get())
-                parameter("page", page)
-                parameter("size", size)
-            }.body()
-        }
-    }
-
-    // Create Payment
-    suspend fun createPayment(paymentRequest: HotelPaymentRequest): Result<HotelPaymentResponse> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/payments/create") {
-                parameter("token", appValues.authToken.get())
-                setBody(paymentRequest)
-            }.body()
-        }
-    }
-
-    // Get My Payments
-    suspend fun getMyPayments(
-        page: Int = 1,
-        size: Int = 10
-    ): Result<UserPaymentsResponse> {
-        return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/hotels/payments/my") {
-                parameter("token", appValues.authToken.get())
-                parameter("page", page)
-                parameter("size", size)
-            }.body()
-        }
-    }
-
-    // Simulate Payment Success (for testing)
-    suspend fun simulatePaymentSuccess(paymentId: Int): Result<Map<String, Any>> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/payments/$paymentId/simulate-success") {
-                parameter("token", appValues.authToken.get())
-            }.body()
-        }
-    }
-
-    // Cancel Booking
-    suspend fun cancelBooking(bookingId: Int): Result<Map<String, Any>> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/bookings/$bookingId/cancel") {
-                parameter("token", appValues.authToken.get())
-            }.body()
-        }
-    }
-
-    // Payment Callback (usually called by payment provider)
-    suspend fun paymentCallback(callbackRequest: PaymentCallbackRequest): Result<Map<String, Any>> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/hotels/payments/callback") {
-                parameter("token", appValues.authToken.get())
-                setBody(callbackRequest)
+            post(ApiClient.BASE_URL + "/places") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+                contentType(ContentType.Application.Json)
+                setBody(mapOf(
+                    "name" to name,
+                    "description" to description,
+                    "category" to category,
+                    "address" to address,
+                    "latitude" to latitude.toString(),
+                    "longitude" to longitude.toString(),
+                    "accessibility_tags" to accessibilityTags,
+                    "disability_types" to disabilityTypes
+                ))
             }.body()
         }
     }
 }
+
+// === Markers Service ===
+
+class MarkersService(
+    private val apiClient: ApiClient,
+    private val appValues: AppValues
+) {
+    suspend fun getMarkers(
+        lat: Double? = null,
+        lon: Double? = null,
+        radius: Double? = null,
+        page: Int = 1,
+        size: Int = 50
+    ): Result<MarkerListResponse> {
+        return apiClient.safeRequest {
+            get(ApiClient.BASE_URL + "/markers") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+                lat?.let { parameter("lat", it) }
+                lon?.let { parameter("lon", it) }
+                radius?.let { parameter("radius", it) }
+                parameter("page", page)
+                parameter("size", size)
+            }.body()
+        }
+    }
+
+    suspend fun getMarker(markerId: Int): Result<MarkerResponse> {
+        return apiClient.safeRequest {
+            get(ApiClient.BASE_URL + "/markers/$markerId") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+            }.body()
+        }
+    }
+
+    suspend fun createMarker(request: MarkerCreateRequest): Result<MarkerResponse> {
+        return apiClient.safeRequest {
+            post(ApiClient.BASE_URL + "/markers") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
+        }
+    }
+
+    suspend fun voteOnMarker(markerId: Int, vote: String): Result<MarkerResponse> {
+        return apiClient.safeRequest {
+            put(ApiClient.BASE_URL + "/markers/$markerId/vote") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+                contentType(ContentType.Application.Json)
+                setBody(VoteRequest(vote))
+            }.body()
+        }
+    }
+}
+
+// === Reviews Service ===
+
+class ReviewsService(
+    private val apiClient: ApiClient,
+    private val appValues: AppValues
+) {
+    suspend fun getReviewsForPlace(placeId: Int): Result<List<ReviewResponse>> {
+        return apiClient.safeRequest {
+            get(ApiClient.BASE_URL + "/reviews/place/$placeId") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+            }.body()
+        }
+    }
+
+    suspend fun getReviewsForMarker(markerId: Int): Result<List<ReviewResponse>> {
+        return apiClient.safeRequest {
+            get(ApiClient.BASE_URL + "/reviews/marker/$markerId") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+            }.body()
+        }
+    }
+
+    suspend fun createReview(request: ReviewCreateRequest): Result<ReviewResponse> {
+        return apiClient.safeRequest {
+            post(ApiClient.BASE_URL + "/reviews") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
+        }
+    }
+}
+
+// === Auth Service ===
 
 class AuthService(
     private val apiClient: ApiClient,
     private val appValues: AppValues
 ) {
-    suspend fun login(loginRequest: LoginRequest): Result<TokenResponse> {
+    suspend fun login(loginRequest: LoginRequest): Result<LoginResponse> {
         return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/auth/login/") {
-                parameter("token", appValues.authToken.get())
+            post(ApiClient.BASE_URL + "/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(loginRequest)
             }.body()
         }
     }
+
+    suspend fun register(registerRequest: RegisterRequest): Result<LoginResponse> {
+        return apiClient.safeRequest {
+            post(ApiClient.BASE_URL + "/auth/register") {
+                contentType(ContentType.Application.Json)
+                setBody(registerRequest)
+            }.body()
+        }
+    }
 }
 
-// Users Service
+// === Users Service ===
+
 class UsersService(
     private val apiClient: ApiClient,
     private val appValues: AppValues
@@ -175,7 +204,7 @@ class UsersService(
     suspend fun createUser(userCreate: UserCreate): Result<UserCreate> {
         return apiClient.safeRequest {
             post(ApiClient.BASE_URL + "/users/") {
-                parameter("token", appValues.authToken.get())
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
                 contentType(ContentType.Application.Json)
                 setBody(userCreate)
             }.body()
@@ -191,7 +220,7 @@ class UsersService(
     suspend fun getUser(userId: Int): Result<UserCreate> {
         return apiClient.safeRequest {
             get(ApiClient.BASE_URL + "/users/$userId") {
-                parameter("token", appValues.authToken.get())
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
             }.body()
         }
     }
@@ -199,7 +228,7 @@ class UsersService(
     suspend fun updateUser(userId: Int, userCreate: UserCreate): Result<UserCreate> {
         return apiClient.safeRequest {
             put(ApiClient.BASE_URL + "/users/$userId") {
-                parameter("token", appValues.authToken.get())
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
                 contentType(ContentType.Application.Json)
                 setBody(userCreate)
             }.body()
@@ -209,48 +238,58 @@ class UsersService(
     suspend fun deleteUser(userId: Int): Result<Unit> {
         return apiClient.safeRequest {
             delete(ApiClient.BASE_URL + "/users/$userId") {
-                parameter("token", appValues.authToken.get())
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
             }
         }
     }
 
-    suspend fun getCurrentUser(): Result<UserMoreModel> {
+    suspend fun getCurrentUser(): Result<UserResponse> {
         return apiClient.safeRequest {
-            get("/users/user/me") {
-                parameter("token", appValues.authToken.get())
+            get(ApiClient.BASE_URL + "/users/me") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+            }.body()
+        }
+    }
+
+    suspend fun updateCurrentUser(
+        name: String? = null,
+        email: String? = null,
+        disabilityTypes: String? = null
+    ): Result<UserResponse> {
+        return apiClient.safeRequest {
+            put(ApiClient.BASE_URL + "/users/me") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
+                contentType(ContentType.Application.Json)
+                setBody(mapOf(
+                    "name" to name,
+                    "email" to email,
+                    "disability_types" to disabilityTypes
+                ))
             }.body()
         }
     }
 }
 
-// Routes Service
+// === Routes Service (Accessible) ===
+
 class RoutesService(
     private val apiClient: ApiClient,
     private val appValues: AppValues
 ) {
-    suspend fun generateRoute(routeRequest: RouteRequest): Result<RouteResponse> {
+    suspend fun generateRoute(request: AccessibleRouteRequest): Result<RouteResponse> {
         return apiClient.safeRequest {
             post(ApiClient.BASE_URL + "/routes/generate") {
-                parameter("token", appValues.authToken.get())
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
                 contentType(ContentType.Application.Json)
-                setBody(routeRequest)
+                setBody(request)
             }.body()
         }
     }
 
-    suspend fun getRoutes(
-        skip: Int = 0,
-        limit: Int = 100,
-        category: String? = null,
-        search: String? = null
-    ): Result<List<RouteResponse>> {
+    suspend fun getRoutes(): Result<List<RouteResponse>> {
         return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/routes/") {
-                parameter("token", appValues.authToken.get())
-                parameter("skip", skip)
-                parameter("limit", limit)
-                category?.let { parameter("category", it) }
-                search?.let { parameter("search", it) }
+            get(ApiClient.BASE_URL + "/routes") {
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
             }.body()
         }
     }
@@ -258,16 +297,7 @@ class RoutesService(
     suspend fun getRoute(routeId: Int): Result<RouteResponse> {
         return apiClient.safeRequest {
             get(ApiClient.BASE_URL + "/routes/$routeId") {
-                parameter("token", appValues.authToken.get())
-            }.body()
-        }
-    }
-
-    suspend fun updateRoute(routeId: Int, routeData: Map<String, Any>): Result<RouteResponse> {
-        return apiClient.safeRequest {
-            put(ApiClient.BASE_URL + "/routes/$routeId") {
-                parameter("token", appValues.authToken.get())
-                setBody(routeData)
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
             }.body()
         }
     }
@@ -275,76 +305,40 @@ class RoutesService(
     suspend fun deleteRoute(routeId: Int): Result<Unit> {
         return apiClient.safeRequest {
             delete(ApiClient.BASE_URL + "/routes/$routeId") {
-                parameter("token", appValues.authToken.get())
+                header("Authorization", "Bearer ${appValues.authToken.get()}")
             }
         }
     }
-
-    suspend fun duplicateRoute(routeId: Int, newName: String? = null): Result<RouteResponse> {
-        return apiClient.safeRequest {
-            post("/routes/$routeId/duplicate") {
-                parameter("token", appValues.authToken.get())
-                newName?.let { parameter("new_name", it) }
-            }.body()
-        }
-    }
-
-    suspend fun optimizeRoute(
-        routeId: Int,
-        optimizationRequest: RouteOptimizationRequest
-    ): Result<RouteResponse> {
-        return apiClient.safeRequest {
-            post(ApiClient.BASE_URL + "/routes/$routeId/optimize") {
-                parameter("token", appValues.authToken.get())
-                setBody(optimizationRequest)
-            }.body()
-        }
-    }
-
-    suspend fun getRouteStats(): Result<RouteStats> {
-        return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/routes/stats/overview") {
-                parameter("token", appValues.authToken.get())
-            }.body()
-        }
-    }
-
-    suspend fun getRoutesNearby(
-        latitude: Double,
-        longitude: Double,
-        radiusKm: Double = 10.0
-    ): Result<List<RouteResponse>> {
-        return apiClient.safeRequest {
-            get(ApiClient.BASE_URL + "/routes/nearby") {
-                parameter("token", appValues.authToken.get())
-                parameter("latitude", latitude)
-                parameter("longitude", longitude)
-                parameter("radius_km", radiusKm)
-            }.body()
-        }
-    }
 }
+
+// === AI Service (Stub) ===
+
 class AiService(
     private val apiClient: ApiClient,
     private val appValues: AppValues
 ) {
-    suspend fun generateComment(data: GenerateCommentRequest): Result<GenerateCommentResponse>{
-        return apiClient.safeRequest {
-            post("ai/ai/generate-comment") {
-                parameter("token", appValues.authToken.get())
-                contentType(ContentType.Application.Json)
-                setBody(data)
-            }.body()
-        }
+    suspend fun generateComment(data: GenerateCommentRequest): Result<GenerateCommentResponse> {
+        // Stub - return predefined accessibility tips
+        val tips = listOf(
+            "Рекомендуем проверить наличие пандуса перед визитом. Позвоните заранее, чтобы уточнить доступность.",
+            "Для слабовидящих рекомендуем маршруты с тактильной навигацией по ул. Большая Садовая.",
+            "Низкопольные автобусы ходят по маршрутам 3, 7 и 22. Уточняйте расписание на остановках.",
+            "В парке Горького есть оборудованные туалеты и зоны отдыха со скамейками.",
+            "МФЦ на Пушкинской предоставляет услуги сурдопереводчика по предварительной записи."
+        )
+        return Result.success(GenerateCommentResponse(
+            comment = tips.random(),
+            success = true
+        ))
     }
-    
+
     suspend fun generateAiRoute(data: AiRouteRequest): Result<AiRouteResponse> {
-        return apiClient.safeRequest {
-            post("/ai-route/generate") {
-                parameter("token", appValues.authToken.get())
-                contentType(ContentType.Application.Json)
-                setBody(data)
-            }.body()
-        }
+        // Stub response
+        return Result.success(AiRouteResponse(
+            success = false,
+            route = null,
+            aiRecommendations = "ИИ-генерация маршрутов временно недоступна. Используйте ручное построение маршрута с фильтрами доступности.",
+            errorMessage = "Функция находится в разработке"
+        ))
     }
 }
