@@ -11,13 +11,13 @@ import app.what.investtravel.data.local.settings.AppValues
 import app.what.investtravel.data.remote.AiService
 import app.what.investtravel.data.remote.ApiClient
 import app.what.investtravel.data.remote.AuthService
-import app.what.investtravel.data.remote.HotelsService
-import app.what.investtravel.data.remote.RoutesService
+import app.what.investtravel.data.remote.PlacesService
+import app.what.investtravel.data.remote.ReviewsService
+import app.what.investtravel.data.remote.AccessibleRoutesService
 import app.what.investtravel.data.remote.UsersService
 import app.what.investtravel.features.assistant.domain.AssistantController
 import app.what.investtravel.features.auth.domain.AuthController
 import app.what.investtravel.features.dev.presentation.NetworkMonitorPlugin
-import app.what.investtravel.features.hotel.domain.HotelController
 import app.what.investtravel.features.main.domain.MainController
 import app.what.investtravel.features.onboarding.domain.OnboardingController
 import app.what.investtravel.features.profile.domain.ProfileController
@@ -72,14 +72,14 @@ val generalModule = module {
     single { ApiClient(get(), get()) }
     single { AuthService(get(), get()) }
     single { UsersService(get(), get()) }
-    single { RoutesService(get(), get()) }
-    single { HotelsService(get(), get()) }
+    single { PlacesService(get(), get()) }
+    single { ReviewsService(get(), get()) }
+    single { AccessibleRoutesService(get(), get()) }
     single { AiService(get(), get()) }
 
     single { Geocoder(get(), Locale.getDefault()) }
     single { LocationServices.getFusedLocationProviderClient(androidContext()) }
 
-    single<HotelController> { HotelController(get(), get(), get(), get()) }
     single<ProfileController> { ProfileController(get(),get()) }
     single<AssistantController> { AssistantController() }
     single<AuthController> { AuthController(get(), get(), get()) }
